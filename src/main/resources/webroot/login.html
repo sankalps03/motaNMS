@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="./style/login.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+  <script src="scripts/authenticate.js"></script>
+
+  <script src="scripts/ajax.js"></script>
+</head>
+<div class="wrapper">
+  <div class="logo">
+    <img src="./motaNMS.png" alt="">
+  </div>
+  <div class="text-center mt-4 name">
+    motaNMS
+  </div>
+  <form class="p-3 mt-3" id="loginForm" action="/loginHandler" method="post">
+    <div class="form-field d-flex align-items-center">
+      <span class="far fa-user"></span>
+      <input type="text" name="userName" id="userName" placeholder="Username">
+    </div>
+    <div class="form-field d-flex align-items-center">
+      <span class="fas fa-key"></span>
+      <input type="password" name="password" id="pwd" placeholder="Password">
+    </div>
+    <button class="btn mt-3">Login</button>
+  </form>
+
+  <div class="text-center fs-6" id = "Error">
+  </div>
+</div>
+</html>
