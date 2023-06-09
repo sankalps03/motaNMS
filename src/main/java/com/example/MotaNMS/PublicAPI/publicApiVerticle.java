@@ -4,7 +4,6 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.properties.PropertyFileAuthentication;
 import io.vertx.ext.web.Route;
@@ -55,15 +54,15 @@ public class publicApiVerticle extends AbstractVerticle {
 
       router.route(HttpMethod.POST,"/discovery/add").handler(this::discoveryAdd);
 
-      router.route(HttpMethod.POST,"/discovery/delete").handler(this::discoveryDelete);
+      router.route(HttpMethod.POST,"/api/discovery/delete").handler(this::discoveryDelete);
 
       router.route(HttpMethod.POST,"/api/discovery/update").handler(this::discoveryUpdate);
 
-      router.route(HttpMethod.POST,"/api/discovery/run").handler(this::discoveryRun);
+      router.route(HttpMethod.POST,"/discovery/run").handler(this::discoveryRun);
 
-      router.route(HttpMethod.POST,"/api/discovery/provision").handler(this::discoveryProvision);
+      router.route(HttpMethod.POST,"/discovery/provision").handler(this::discoveryProvision);
 
-      router.route(HttpMethod.GET,"/discovery/load").handler(this::discoveryLoad);
+      router.route(HttpMethod.GET,"/api/discovery/load").handler(this::discoveryLoad);
 
       router.route().handler(StaticHandler.create().setCachingEnabled(false));
 
@@ -85,9 +84,11 @@ public class publicApiVerticle extends AbstractVerticle {
 
       if (reply.succeeded()){
 
-        JsonArray discoveryData = (JsonArray)reply.result().body();
+        String discoveryData = reply.result().body().toString();
 
-        routingContext.response().end(discoveryData.toString());
+        System.out.println(discoveryData);
+
+        routingContext.response().end(discoveryData);
 
       }
       else {
@@ -113,8 +114,10 @@ public class publicApiVerticle extends AbstractVerticle {
 
       if (reply.succeeded()){
 
+        sendStatusCode(routingContext,200);
+      }else {
 
-
+        sendStatusCode(routingContext,500);
       }
 
     });

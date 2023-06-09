@@ -8,59 +8,76 @@ import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.ResultSet;
+import static com.example.MotaNMS.Util.Utilities.runPlugin;
 
 
 public class discovery {
 
   EventBus eventBus;
 
-  public void ebus(Vertx vertx){
-     eventBus = vertx.eventBus();
+  Vertx vertx;
+
+  protected void setEventBus(Vertx vertx1) {
+    vertx = vertx1;
+    eventBus = vertx.eventBus();
+
   }
 
-
-
   private final Logger logger = LoggerFactory.getLogger(discovery.class);
+
   protected void add(Message<Object> message) {
 
     JsonObject addData = (JsonObject) message.body();
 
-    String credentials = null;
+    String query = sqlQueries.insertDiscovery();
+
+    JsonObject credentials = new JsonObject();
+
+    String username = null;
+
+    String password = null;
 
     String ip = addData.getString("ip");
 
     String type = addData.getString("type");
 
-    if(type.equals("ssh") || type.equals("snmp")){
+    if (type.equals("ssh") || type.equals("snmp")) {
 
-      credentials= addData.getString("credentials");
+      username = addData.getString("username");
+
+      password = addData.getString("password");
 
     }
 
-    if(!ip.isEmpty() && !type.isEmpty() && ((type.equals("ssh") || type.equals("snmp")) && !credentials.isEmpty() )){
+    if (!ip.isEmpty() && !type.isEmpty() && ((type.equals("ssh")) && (!username.isEmpty() && !password.isEmpty()))) {
 
       JsonObject checkedData = new JsonObject();
 
-      checkedData.put("ip",ip).put("type",type).put("credentials",credentials).put("table","discovery");
+      credentials.put("username", username)
+        .put("password", password)
+        .put("port", "22");
+
+      checkedData.put("ip", ip).put("type", type)
+        .put("credentials", credentials)
+        .put("query", query);
 
 
-      eventBus.request("addToDiscovery",checkedData,reply -> {
+      eventBus.request("addToDiscovery", checkedData, reply -> {
 
-        if (reply.succeeded()){
+        if (reply.succeeded()) {
 
           message.reply("");
 
-        }else {
-          message.fail(2,"insert failed");
+        } else {
+          message.fail(2, "insert failed");
 
           logger.error("insert failed");
         }
       });
 
-    }else {
+    } else {
 
-      message.fail(2,"Bad Data");
+      message.fail(2, "Bad Data");
 
       logger.error("Incomplete or Bad data");
     }
@@ -70,32 +87,29 @@ public class discovery {
 
     JsonObject deleteData = (JsonObject) message.body();
 
+    String query = sqlQueries.deleteDiscovery();
+
     String id = deleteData.getString("id");
 
-    int idd = Integer.valueOf(id);
+    if (!id.isEmpty()) {
 
-    System.out.println("idd" + idd);
+      eventBus.request("deleteFromDiscovery", new JsonObject().put("id", id).put("query", query), reply -> {
 
-    if (!id.isEmpty()){
-
-      eventBus.request("deleteFromDiscovery",new JsonObject().put("id",idd),reply->{
-
-        if (reply.succeeded()){
+        if (reply.succeeded()) {
 
           message.reply("row deleted");
 
-        }else {
+        } else {
 
-          message.fail(2,"");
+          message.fail(2, "");
 
-          logger.error("reply.result().toString()");
+          logger.error("row delete failed");
 
         }
       });
-    }
-    else {
+    } else {
 
-      message.fail(2,"No row id to delete");
+      message.fail(2, "No row id to delete");
     }
 
   }
@@ -110,44 +124,138 @@ public class discovery {
 
     String type = updateData.getString("type");
 
-    if(type.equals("ssh") || type.equals("snmp")){
+    if (type.equals("ssh") || type.equals("snmp")) {
 
-      credentials= updateData.getString("credentials");
+      credentials = updateData.getString("credentials");
 
     }
 
   }
 
   protected void run(Message<Object> message) {
+
+    try {
+
+      JsonObject run = (JsonObject) message.body();
+
+      String id = run.getString("id");
+
+      System.out.println(id);
+
+      eventBus.request("getCredentialsFromDiscovery", new JsonObject().put("query", sqlQueries.selectRunDiscovery()).put("id", id),
+        reply -> {
+
+          if (reply.succeeded()) {
+
+            JsonArray runData = (JsonArray) reply.result().body();
+
+            JsonObject runDataObject = runData.getJsonObject(0);
+
+            String credential =  runDataObject.getString("CREDENTIAL");
+
+            JsonObject credentials = new JsonObject(credential);
+
+            credentials.put("type", runDataObject.getValue("TYPE"))
+              .put("ip", runDataObject.getValue("IPADDRESS"))
+              .put("category", "discovery");
+
+            System.out.println(credentials  );
+
+            vertx.executeBlocking(discover->{
+
+              JsonObject result = runPlugin(credentials);
+
+              if(result.getString("STATUS").equals("SUCCESSFUL")){
+
+                discover.complete();
+              }
+              else{
+
+                discover.fail("unsuccessful");
+              }
+
+            },false,handler->{
+
+              if(handler.succeeded()){
+
+                eventBus.send("setProvisionTrue",new JsonObject().put("id",id).put("query",sqlQueries.setProvision()));
+
+                message.reply("success");
+              }else {
+
+                message.fail(2,"discovery failed");
+
+                logger.error("Discovery failed");
+              }
+
+            });
+
+          }
+
+        });
+
+    } catch (Exception exception) {
+
+      logger.error(exception.getMessage());
+    }
   }
 
-  protected void provision(Message<Object> message) {}
+  protected void provision(Message<Object> message) {
+
+    JsonObject run = (JsonObject) message.body();
+
+    String id = run.getString("id");
+
+    System.out.println(id);
+
+    eventBus.request("addToMonitor",new JsonObject().put("query",sqlQueries.provision()).put("id",id),
+      reply ->{
+
+      if(reply.succeeded()){
+
+        message.reply("provisoned sucessfully");
+
+        logger.info("provisiond sucessfully");
+      }else {
+
+        message.fail(2,"provisioning failed");
+
+        logger.error("provisioning failed");
+      }
+
+      });
+
+
+  }
 
 
   protected void load(Message<Object> message) {
     try {
-    eventBus.request("loadDiscovery",new JsonObject().put("table","discovery"),reply ->{
 
-      if(reply.succeeded()){
+      String query = sqlQueries.selectDiscovery();
 
-        JsonArray discoveryData = (JsonArray) message.body();
+      eventBus.request("loadDiscovery", new JsonObject().put("table", "discovery").put("query", query), reply -> {
 
-        message.reply(discoveryData);
+        if (reply.succeeded()) {
+          String data = reply.result().body().toString();
 
-        System.out.println(discoveryData);
+          message.reply(data);
 
-      }else {
+          System.out.println(data);
 
-        message.fail(reply.result().hashCode(),reply.result().toString());
+        } else {
 
-        logger.error(reply.result().toString());
-      }
+          message.fail(2, "");
 
-    });
-  }catch (Exception exception){
+          logger.error("could not load data");
+        }
 
-    message.fail(2,exception.getMessage());
+      });
+    } catch (Exception exception) {
 
-    logger.error(exception.getMessage());}
-}
+      message.fail(2, exception.getMessage());
+
+      logger.error(exception.getMessage());
+    }
+  }
 }

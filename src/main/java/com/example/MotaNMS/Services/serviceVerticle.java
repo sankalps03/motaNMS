@@ -20,19 +20,19 @@ public class serviceVerticle extends AbstractVerticle {
 
     discovery discovery = new discovery();
 
-    discovery.ebus(getVertx());
+    discovery.setEventBus(getVertx());
 
-    eventBus.consumer("discoveryAdd").handler(discovery::add);
+    eventBus.localConsumer("discoveryAdd").handler(discovery::add);
 
-    eventBus.consumer("discoveryDelete").handler(discovery::delete);
+    eventBus.localConsumer("discoveryDelete").handler(discovery::delete);
 
-    eventBus.consumer("discoveryUpdate").handler(discovery::update);
+    eventBus.localConsumer("discoveryUpdate").handler(discovery::update);
 
-    eventBus.consumer("discoveryRun").handler(discovery::run);
+    eventBus.localConsumer("discoveryRun").handler(discovery::run);
 
-    eventBus.consumer("discoveryProvision").handler(discovery::provision);
+    eventBus.localConsumer("discoveryProvision").handler(discovery::provision);
 
-    eventBus.consumer("discoveryLoad").handler(discovery::load);
+    eventBus.localConsumer("discoveryLoad").handler(discovery::load);
 
   }catch (Exception exception){
 
