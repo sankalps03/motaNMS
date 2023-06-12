@@ -41,7 +41,7 @@ public class discovery {
 
     String type = addData.getString("type");
 
-    if (type.equals("ssh") || type.equals("snmp")) {
+    if (type.equals("ssh")) {
 
       username = addData.getString("username");
 
@@ -49,7 +49,7 @@ public class discovery {
 
     }
 
-    if (!ip.isEmpty() && !type.isEmpty() && ((type.equals("ssh")) && (!username.isEmpty() && !password.isEmpty()))) {
+    if (!ip.isEmpty() && !type.isEmpty() && (((type.equals("ssh")) && (!username.isEmpty() && !password.isEmpty())) || (type.equals("ping")))) {
 
       JsonObject checkedData = new JsonObject();
 
@@ -67,6 +67,8 @@ public class discovery {
         if (reply.succeeded()) {
 
           message.reply("");
+
+          logger.info("Added to discovery table");
 
         } else {
           message.fail(2, "insert failed");
@@ -98,6 +100,8 @@ public class discovery {
         if (reply.succeeded()) {
 
           message.reply("row deleted");
+
+          logger.info("Discovery row deleted Successfully");
 
         } else {
 
@@ -163,7 +167,9 @@ public class discovery {
 
             vertx.executeBlocking(discover->{
 
-              JsonObject result = runPlugin(credentials);
+              JsonArray resultArray = runPlugin(credentials);
+
+              JsonObject result = resultArray.getJsonObject(0);
 
               if(result.getString("STATUS").equals("SUCCESSFUL")){
 
@@ -181,6 +187,8 @@ public class discovery {
                 eventBus.send("setProvisionTrue",new JsonObject().put("id",id).put("query",sqlQueries.setProvision()));
 
                 message.reply("success");
+
+                logger.info("Discovery run successful");
               }else {
 
                 message.fail(2,"discovery failed");
@@ -241,7 +249,7 @@ public class discovery {
 
           message.reply(data);
 
-          System.out.println(data);
+          logger.info("Discovery data loaded success");
 
         } else {
 

@@ -19,75 +19,22 @@
         <div class="row d-flex">
           <div class="col-sm-8 add_flex">
             <div class="form-group searchInput">
-              <label for="email">Search:</label>
+              <label>Search:</label>
               <input type="search" class="form-control" id="filterbox" placeholder=" ">
             </div>
           </div>
         </div>
         <div class="overflow-x">
-          <table style="width:100%;" id="filtertable" class="table cust-datatable dataTable no-footer">
+          <table style="width:100%;" id="monitorTable" class="table cust-datatable dataTable no-footer">
             <thead>
             <tr>
+              <th style="min-width:50px;">ID</th>
               <th style="min-width:50px;">IP</th>
               <th style="min-width:150px;">TYPE</th>
               <th style="min-width:150px;">STATUS</th>
-              <th style="min-width:150px;">ACTION</th>
+              <th style="min-width:150px;">Action</th>
             </tr>
             </thead>
-            <tbody>
-            <tr>
-              <td>10.20.40.24</td>
-              <td>SSH</td>
-              <td><span class="mode mode_on">Active</span></td>
-              <td>
-                <div class="btn-group">
-                  <a class="dropdown-toggle dropdown_icon" data-toggle="dropdown">
-                    <i class="fa fa-pencil-square-o"></i> </a>
-                  <ul class="dropdown-menu">
-                    <li>
-                      <a href="#" target="_blank">
-                        Dummy Details
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#" target="_blank">
-                        Dummy Details
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#" target="_blank">
-                        Dummy Details
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                <span class="actionCust">
-                                            <a href="#"><i class="fa fa-line-chart"></i></a>
-                                        </span>
-                <div class="btn-group">
-                  <a class="dropdown-toggle dropdown_icon" data-toggle="dropdown">
-                    <i class="fa fa-ellipsis-h"></i>
-                  </a>
-                  <ul class="dropdown-menu dropdown_more">
-                    <li>
-                      <a href="#" target="_black">
-                        <i class="fa fa-clone"></i>Duplicate
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#" target="_black">
-                        <i class="fa fa-trash"></i> Delete
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#" target="_black">
-                        <i class="fa fa-list"></i>Activity</a>
-                    </li>
-                  </ul>
-                </div>
-              </td>
-            </tr>
-            </tbody>
           </table>
         </div>
       </div>

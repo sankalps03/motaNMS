@@ -88,7 +88,7 @@ $(function() {
     ]
   });
 
-  
+
   var doughnutData = {
       labels: ["Desktop","Tablet","Mobile" ],
       datasets: [{
@@ -108,6 +108,7 @@ $(function() {
 
   var ctx4 = document.getElementById("doughnut_chart").getContext("2d");
   new Chart(ctx4, {type: 'doughnut', data: doughnutData, options:doughnutOptions});
+
 
 
 });

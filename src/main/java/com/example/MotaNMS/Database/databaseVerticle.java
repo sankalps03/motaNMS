@@ -8,6 +8,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,7 +38,15 @@ public class databaseVerticle extends AbstractVerticle {
 
     eventBus.localConsumer("deleteFromDiscovery").handler(this::rowIdOperation);
 
+    eventBus.localConsumer("deleteFromMonitor").handler(this::rowIdOperation);
+
     eventBus.localConsumer("loadDiscovery").handler(this::select);
+
+    eventBus.localConsumer("loadMonitor").handler(this::select);
+
+    eventBus.localConsumer("getAllSshDevices").handler(this::select);
+
+    eventBus.localConsumer("getAllPingDevices").handler(this::select);
 
     eventBus.localConsumer("getCredentialsFromDiscovery").handler(this::select);
 
@@ -52,112 +61,135 @@ public class databaseVerticle extends AbstractVerticle {
 
   private void select(Message message) {
 
-    try {
+    vertx.executeBlocking(selectOperation -> {
 
-      JsonObject data = (JsonObject) message.body();
+      try {
 
-      Connection connection = pool.getConnection();
+        JsonObject data = (JsonObject) message.body();
 
-      PreparedStatement prepared = connection.prepareStatement(data.getString("query"));
+        Connection connection = pool.getConnection();
 
-      ResultSet resultSet = prepared.executeQuery();
+        PreparedStatement prepared = connection.prepareStatement(data.getString("query"));
 
-      ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+        if (data.containsKey("id")) {
 
-      List<String> columns = new ArrayList<>(resultSetMetaData.getColumnCount());
-
-      for(int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
-
-        columns.add(resultSetMetaData.getColumnName(i));
-
-      }
-
-      List<Map<String,String>> resultData = new ArrayList<>();
-
-      while(resultSet.next()){
-
-        Map<String,String> row = new HashMap<>(columns.size());
-
-        for(String col : columns) {
-
-          row.put(col, resultSet.getString(col));
+          prepared.setInt(1, Integer.valueOf(data.getString("id")));
 
         }
-        resultData.add(row);
+
+        ResultSet resultSet = prepared.executeQuery();
+
+        ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+
+        List<String> columns = new ArrayList<>(resultSetMetaData.getColumnCount());
+
+        for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
+
+          columns.add(resultSetMetaData.getColumnName(i));
+
+        }
+
+        List<Map<String, String>> resultData = new ArrayList<>();
+
+        while (resultSet.next()) {
+
+          Map<String, String> row = new HashMap<>(columns.size());
+
+          for (String col : columns) {
+
+            row.put(col, resultSet.getString(col));
+
+          }
+          resultData.add(row);
+        }
+
+        JsonArray result = new JsonArray(resultData);
+
+        message.reply(result);
+
+        connectionPool.releaseConnection(connection);
+
+        logger.info("select method run Success");
+
+
+      } catch (Exception exception) {
+
+        message.fail(2, exception.getMessage());
+
+        logger.error(exception.getMessage());
       }
-
-      JsonArray result = new JsonArray(resultData);
-
-      message.reply(result);
-
-      connectionPool.releaseConnection(connection);
-
-    } catch (Exception exception) {
-
-      message.fail(2, exception.getMessage());
-
-      logger.error(exception.getMessage());
-    }
+    }, false);
 
   }
 
   private void rowIdOperation(Message<Object> message) {
 
-    try {
+    vertx.executeBlocking(rowOperation -> {
 
-    JsonObject data = (JsonObject) message.body();
+      try {
 
-    int id = Integer.valueOf(data.getString("id"));
+        JsonObject data = (JsonObject) message.body();
 
-      Connection connection = pool.getConnection();
+        int id = Integer.valueOf(data.getString("id"));
 
-      PreparedStatement prepared = connection.prepareStatement(data.getString("query"));
+        Connection connection = pool.getConnection();
 
-      prepared.setInt(1, id);
+        PreparedStatement prepared = connection.prepareStatement(data.getString("query"));
 
-      prepared.execute();
+        prepared.setInt(1, id);
 
-      connectionPool.releaseConnection(connection);
+        prepared.execute();
 
-      message.reply("in database");
+        connectionPool.releaseConnection(connection);
 
-    } catch (Exception exception) {
+        message.reply("in database");
 
-      message.fail(2, "operation failed");
+        logger.info("row operation successful");
 
-      logger.error(exception.getMessage());
+      } catch (Exception exception) {
 
-    }
+        message.fail(2, "operation failed");
+
+        logger.error(exception.getMessage());
+
+      }
+    }, false);
   }
 
   private void insert(Message<Object> message) {
 
-    JsonObject data = (JsonObject) message.body();
+    vertx.executeBlocking(indertOperaton -> {
+      try {
 
-    try {
+        JsonObject data = (JsonObject) message.body();
 
-      Connection connection = pool.getConnection();
+        Connection connection = pool.getConnection();
 
-      PreparedStatement prepared = connection.prepareStatement(data.getString("query"));
+        PreparedStatement prepared = connection.prepareStatement(data.getString("query"));
 
-      prepared.setString(1, data.getString("ip"));
+          data = (JsonObject) message.body();
 
-      prepared.setString(2, data.getString("type"));
+          prepared.setString(1, data.getString("ip"));
 
-      prepared.setString(3, data.getJsonObject("credentials").toString());
+          prepared.setString(2, data.getString("type"));
 
-      prepared.execute();
+          prepared.setString(3, data.getJsonObject("credentials").toString());
 
-      connectionPool.releaseConnection(connection);
+        prepared.execute();
 
-      message.reply("inserted");
+        connectionPool.releaseConnection(connection);
 
-    } catch (Exception exception) {
+        message.reply("inserted");
 
-      message.fail(2, "insert failed");
+        logger.info("Insert Successful");
 
-      logger.error(exception.getMessage());
-    }
+      } catch (Exception exception) {
+
+        message.fail(2, "insert failed");
+
+        logger.error(exception.getMessage());
+      }
+    },false);
 
   }
 

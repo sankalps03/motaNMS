@@ -20,7 +20,11 @@ public class serviceVerticle extends AbstractVerticle {
 
     discovery discovery = new discovery();
 
+    monitor monitor = new monitor();
+
     discovery.setEventBus(getVertx());
+
+    monitor.setEventBus(getVertx());
 
     eventBus.localConsumer("discoveryAdd").handler(discovery::add);
 
@@ -33,6 +37,12 @@ public class serviceVerticle extends AbstractVerticle {
     eventBus.localConsumer("discoveryProvision").handler(discovery::provision);
 
     eventBus.localConsumer("discoveryLoad").handler(discovery::load);
+
+    eventBus.localConsumer("monitorLoad").handler(monitor::load);
+
+    eventBus.localConsumer("monitorDelete").handler(monitor::delete);
+
+    startPromise.complete();
 
   }catch (Exception exception){
 

@@ -52,17 +52,23 @@ public class publicApiVerticle extends AbstractVerticle {
         context.reroute("/api");
       });
 
-      router.route(HttpMethod.POST,"/discovery/add").handler(this::discoveryAdd);
+      router.route(HttpMethod.POST,"/api/discovery/add").handler(this::discoveryAdd);
 
       router.route(HttpMethod.POST,"/api/discovery/delete").handler(this::discoveryDelete);
 
       router.route(HttpMethod.POST,"/api/discovery/update").handler(this::discoveryUpdate);
 
-      router.route(HttpMethod.POST,"/discovery/run").handler(this::discoveryRun);
+      router.route(HttpMethod.POST,"/api/discovery/run").handler(this::discoveryRun);
 
-      router.route(HttpMethod.POST,"/discovery/provision").handler(this::discoveryProvision);
+      router.route(HttpMethod.POST,"/api/discovery/provision").handler(this::discoveryProvision);
 
       router.route(HttpMethod.GET,"/api/discovery/load").handler(this::discoveryLoad);
+
+      router.route(HttpMethod.GET,"/api/monitor/load").handler(this::monitorLoad);
+
+      router.route(HttpMethod.POST,"/api/monitor/delete").handler(this::monitorDelete);
+
+      router.route(HttpMethod.GET,"/api/monitor/device").handler(this::monitorDevice);
 
       router.route().handler(StaticHandler.create().setCachingEnabled(false));
 
@@ -76,17 +82,49 @@ public class publicApiVerticle extends AbstractVerticle {
     }
   }
 
-  private void discoveryLoad(RoutingContext routingContext) {
+  private void monitorDevice(RoutingContext context) {
+  }
 
-    JsonObject discoveryAddData = routingContext.body().asJsonObject();
+  private void monitorDelete(RoutingContext context) {
 
-    eventBus.request("discoveryLoad",discoveryAddData,reply ->{
+    logger.info("Monitor delete Request");
+
+    String address ="monitorDelete";
+
+    requestEventBusCRUD(context,address);
+
+  }
+
+  private void monitorLoad(RoutingContext context) {
+
+    logger.info("monitor data request");
+
+    eventBus.request("monitorLoad","monitorData",reply ->{
 
       if (reply.succeeded()){
 
         String discoveryData = reply.result().body().toString();
 
-        System.out.println(discoveryData);
+        context.response().end(discoveryData);
+
+      }
+      else {
+
+        sendStatusCode(context,500);
+      }
+    });
+
+  }
+
+  private void discoveryLoad(RoutingContext routingContext) {
+
+    logger.info("Discovery data request");
+
+    eventBus.request("discoveryLoad","discoveryData",reply ->{
+
+      if (reply.succeeded()){
+
+        String discoveryData = reply.result().body().toString();
 
         routingContext.response().end(discoveryData);
 
@@ -101,12 +139,16 @@ public class publicApiVerticle extends AbstractVerticle {
 
   private void discoveryProvision(RoutingContext routingContext) {
 
+    logger.info("provision Request received");
+
     String address ="discoveryProvision";
 
     requestEventBusCRUD(routingContext,address);
   }
 
   private void discoveryRun(RoutingContext routingContext) {
+
+    logger.info("Run request received");
 
     JsonObject discoveryAddData = routingContext.body().asJsonObject();
 
@@ -132,6 +174,8 @@ public class publicApiVerticle extends AbstractVerticle {
 
   private void discoveryDelete(RoutingContext routingContext) {
 
+    logger.info("Discovery delete Request");
+
     String address ="discoveryDelete";
 
     requestEventBusCRUD(routingContext,address);
@@ -139,6 +183,8 @@ public class publicApiVerticle extends AbstractVerticle {
   }
 
   private void discoveryAdd(RoutingContext routingContext) {
+
+    logger.info("Discovery add Request");
 
     String address ="discoveryAdd";
 
@@ -178,11 +224,15 @@ public class publicApiVerticle extends AbstractVerticle {
 
     context.response().setStatusCode(statusCode).end();
 
+    logger.info("response status code", statusCode);
+
   }
 
   private void sendBadRequest(RoutingContext context){
 
     context.fail(400);
+
+    logger.error("Bad request status code 400");
   }
 
 }

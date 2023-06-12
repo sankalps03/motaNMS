@@ -8,32 +8,93 @@
   <link rel="stylesheet" href="https://cdn.datatables.net/1.10.14/css/jquery.dataTables.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
   <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;1,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=PT+Sans:400" rel="stylesheet">
+
   <link rel="stylesheet" href="style/discovery.css">
-  <title>Responsive DataTable UI Design</title>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.14/js/jquery.dataTables.min.js"></script>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <script src="scripts/discovery.js"></script>
+  <script src="scripts/ajax.js"></script>
+  <script src="scripts/htmlVariables.js"></script>
+  <title>Discovery</title>
 </head>
 <body>
 <div class="container p-30">
+  <div class="booking-form" id="addForm">
+    <form>
+      <div class="form-group">
+        <div class="form-checkbox">
+          <label for="PING">
+            <input type="radio" id="ping" name="type" value="ping" >
+            <span></span>PING
+          </label>
+          <label for="SSH">
+            <input type="radio" id="ssh" name="type" value="ssh" checked>
+            <span></span>SSH
+          </label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <span class="form-label">IP ADDRESS</span>
+            <input id ="ipAddress" class="form-control" type="text" placeholder="10.20.40.24" required>
+          </div>
+        </div>
+      </div>
+      <div class="row" id ="sshRow">
+        <div class="col-md-3">
+          <div class="form-group">
+            <span class="form-label">USERNAME</span>
+            <input id = "username" class="form-control" type="text" required>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <span class="form-label">PASSWORD</span>
+            <input id = "password" class="form-control" type="password" required>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-3">
+          <div class="form-btn">
+            <button type="submit" class="submit-btn">Add</button>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-btn">
+            <button type="button" class="submit-btn" onclick="discovery.closeForm()">Close</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
   <div class="row">
     <div class="col-md-12 main-datatable">
       <div class="card_body">
         <div class="row d-flex">
           <div class="col-sm-4 createSegment">
-            <a class="btn dim_button create_new" href="addDevice.html"> <span class="glyphicon glyphicon-plus"></span> Add New</a>
+            <a class="btn dim_button create_new" onclick="discovery.openForm()"> <span class="glyphicon glyphicon-plus"></span> Add New</a>
           </div>
           <div class="col-sm-8 add_flex">
             <div class="form-group searchInput">
-              <label for="email">Search:</label>
+              <label>Search:</label>
               <input type="search" class="form-control" id="filterbox" placeholder=" ">
             </div>
           </div>
         </div>
         <div class="overflow-x">
-          <table style="width:100%;" id="filtertable" class="table cust-datatable dataTable no-footer">
+          <table style="width:100%;" id="discoveryTable" class="table cust-datatable dataTable no-footer">
             <thead>
             <tr>
+              <th style="min-width:50px;">ID</th>
               <th style="min-width:50px;">IP</th>
               <th style="min-width:150px;">TYPE</th>
-              <th style="min-width:150px;">PROVISIONED</th>
               <th style="min-width:150px;">Action</th>
             </tr>
             </thead>
@@ -44,11 +105,6 @@
   </div>
 </div>
 
-
-<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.14/js/jquery.dataTables.min.js"></script>
-<script src="scripts/discovery.js"></script>
 </body>
 </html>
 

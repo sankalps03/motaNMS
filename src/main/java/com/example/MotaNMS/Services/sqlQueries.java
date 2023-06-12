@@ -1,6 +1,6 @@
 package com.example.MotaNMS.Services;
 
-interface sqlQueries{
+public interface sqlQueries{
 
 
   static String insertDiscovery(){
@@ -15,7 +15,7 @@ interface sqlQueries{
   }
 
   static String selectRunDiscovery(){
-    return "SELECT ipaddress,type,credential FROM DISCOVERY";
+    return "SELECT ipaddress,type,credential FROM DISCOVERY WHERE id = ?";
   }
 
   static String provision(){
@@ -26,4 +26,22 @@ interface sqlQueries{
     return "UPDATE DISCOVERY SET Provision = true WHERE id = ?";
   }
 
+  static String selectMonitor(){
+    return "SELECT id,ipaddress,type FROM MONITOR";
+  }
+
+  static String deleteMonitor(){
+    return "DELETE FROM MONITOR WHERE id =?";
+  }
+
+  static String selectSshDevices(){
+    return "SELECT * FROM MONITOR WHERE TYPE = 'ssh'";
+  }
+
+  static String selectPingDevices(){
+    return "SELECT * FROM MONITOR WHERE TYPE = ping";
+  }
+
+
 }
+
