@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.example.MotaNMS.Util.Utilities.runPlugin;
+import static com.example.MotaNMS.Util.Utilities.runPluginPolling;
 
 
 public class discovery {
@@ -157,17 +158,19 @@ public class discovery {
 
             String credential =  runDataObject.getString("CREDENTIAL");
 
-            JsonObject credentials = new JsonObject(credential);
+            JsonObject credentialObject = new JsonObject(credential);
 
-            credentials.put("type", runDataObject.getValue("TYPE"))
+            credentialObject.put("type", runDataObject.getValue("TYPE"))
               .put("ip", runDataObject.getValue("IPADDRESS"))
               .put("category", "discovery");
 
-            System.out.println(credentials  );
+            JsonArray credentialArray = new JsonArray();
+
+            credentialArray.add(credentialObject);
 
             vertx.executeBlocking(discover->{
 
-              JsonArray resultArray = runPlugin(credentials);
+              JsonArray resultArray = runPluginPolling(credentialArray);
 
               JsonObject result = resultArray.getJsonObject(0);
 

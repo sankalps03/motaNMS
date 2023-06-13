@@ -12,43 +12,51 @@ public class serviceVerticle extends AbstractVerticle {
 
   EventBus eventBus;
 
-  public void start(Promise<Void> startPromise){
+  public void start(Promise<Void> startPromise) {
 
-    try{
+    try {
 
-    eventBus = getVertx().eventBus();
+      eventBus = getVertx().eventBus();
 
-    discovery discovery = new discovery();
+      discovery discovery = new discovery();
 
-    monitor monitor = new monitor();
+      monitor monitor = new monitor();
 
-    discovery.setEventBus(getVertx());
+      discovery.setEventBus(getVertx());
 
-    monitor.setEventBus(getVertx());
+      monitor.setEventBus(getVertx());
 
-    eventBus.localConsumer("discoveryAdd").handler(discovery::add);
+      eventBus.localConsumer("discoveryAdd").handler(discovery::add);
 
-    eventBus.localConsumer("discoveryDelete").handler(discovery::delete);
+      eventBus.localConsumer("discoveryDelete").handler(discovery::delete);
 
-    eventBus.localConsumer("discoveryUpdate").handler(discovery::update);
+      eventBus.localConsumer("discoveryUpdate").handler(discovery::update);
 
-    eventBus.localConsumer("discoveryRun").handler(discovery::run);
+      eventBus.localConsumer("discoveryRun").handler(discovery::run);
 
-    eventBus.localConsumer("discoveryProvision").handler(discovery::provision);
+      eventBus.localConsumer("discoveryProvision").handler(discovery::provision);
 
-    eventBus.localConsumer("discoveryLoad").handler(discovery::load);
+      eventBus.localConsumer("discoveryLoad").handler(discovery::load);
 
-    eventBus.localConsumer("monitorLoad").handler(monitor::load);
+      eventBus.localConsumer("monitorLoad").handler(monitor::load);
 
-    eventBus.localConsumer("monitorDelete").handler(monitor::delete);
+      eventBus.localConsumer("monitorDelete").handler(monitor::delete);
 
-    startPromise.complete();
+      eventBus.localConsumer("monitorLoadDevice").handler(monitor::loadDeviceData);
 
-  }catch (Exception exception){
+      startPromise.complete();
+
+    } catch (Exception exception) {
 
       logger.error(exception.getMessage());
 
     }
 
-    }
+  }
+
+
+  private void sendDashBoardData(){
+
+
+  }
 }

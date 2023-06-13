@@ -3,6 +3,7 @@ package com.example.MotaNMS.Services;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,5 +82,55 @@ public class monitor {
 
       message.fail(2, "No row id to delete");
     }
+  }
+
+  protected void loadDeviceData(Message<Object> message) {
+
+    JsonObject deviceIp = (JsonObject) message.body();
+
+    String query ;
+
+    if(deviceIp.getString("type").equals("ssh")){
+
+      query= sqlQueries.selectAllLatestData();
+
+    }else {
+
+      query = sqlQueries.selectPingLatestData();
+
+    }
+
+    deviceIp.put("query",query);
+
+    eventBus.request("deviceDataFromDB",deviceIp,reply ->{
+
+      if (reply.succeeded()){
+
+        String dashboardData = reply.result().body().toString();
+
+        JsonArray dashBoardArray = new JsonArray(dashboardData);
+
+        JsonObject dashBoardbject = new JsonObject();
+
+        for (Object metric: dashBoardArray) {
+
+          JsonObject metricValue = (JsonObject) metric;
+
+          dashBoardbject.put(metricValue.getString("METRICTYPE"),metricValue.getValue("METRICVALUE"));
+
+        }
+
+        message.reply(dashBoardbject);
+
+        logger.info("dashboard data load success" + dashBoardbject);
+
+      }else {
+
+        message.fail(2,"dashboard data load fail");
+
+        logger.error("dashboard data load fail");
+
+      }
+    });
   }
 }

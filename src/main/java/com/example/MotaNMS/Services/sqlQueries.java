@@ -39,7 +39,21 @@ public interface sqlQueries{
   }
 
   static String selectPingDevices(){
-    return "SELECT * FROM MONITOR WHERE TYPE = ping";
+    return "SELECT * FROM MONITOR ";
+  }
+
+  static String insertPolling(){
+    return "INSERT INTO polling (ipaddress, type, metricType, metricvalue, timestamp) VALUES (?, ?, ?, ?, ?)";
+  }
+
+  static String selectAllLatestData(){
+
+    return "SELECT p.METRICTYPE, p.METRICVALUE FROM polling p WHERE p.IPADDRESS = ? AND p.METRICTYPE IN ('ping.packet.sent', 'ping.packet.rcv', 'ping.packet.rtt', 'cpu.percent.total', 'disk.percent.used','memory.percent.used','ping.packet.loss') AND p.TIMESTAMP = (SELECT MAX(TIMESTAMP) FROM polling WHERE IPADDRESS = ? AND METRICTYPE = p.METRICTYPE )";
+  }
+
+  static String selectPingLatestData(){
+
+    return "SELECT p.METRICTYPE, p.METRICVALUE FROM polling p WHERE p.IPADDRESS = ? AND p.METRICTYPE IN ('ping.packet.sent', 'ping.packet.rcv', 'ping.packet.rtt','ping.packet.loss') AND p.TIMESTAMP = ( SELECT MAX(TIMESTAMP) FROM polling WHERE IPADDRESS = ? AND METRICTYPE = p.METRICTYPE )";
   }
 
 

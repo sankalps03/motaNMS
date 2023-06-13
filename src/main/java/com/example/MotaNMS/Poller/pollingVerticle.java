@@ -46,11 +46,28 @@ public class pollingVerticle extends AbstractVerticle {
 
         String credentials = result.toString();
 
+        JsonArray deviceDataArray = new JsonArray();
+
         JsonArray credentialArray = new JsonArray(credentials);
+
+        for (Object object:credentialArray) {
+
+          JsonObject dataObject = (JsonObject) object;
+
+          String credential =  dataObject.getString("CREDENTIAL");
+
+          JsonObject deviceData = new JsonObject(credential);
+
+          deviceData.put("type", dataObject.getValue("TYPE"))
+            .put("ip", dataObject.getValue("IPADDRESS")).put("category","polling");
+
+          deviceDataArray.add(deviceData);
+
+        }
 
         vertx.executeBlocking(pollSsh ->{
 
-          JsonArray pollData = runPluginPolling(credentialArray,new JsonObject().put("category","polling").put("type","ping"));
+          JsonArray pollData = runPluginPolling(deviceDataArray);
 
           insertPollData(pollData);
         });
@@ -63,11 +80,25 @@ public class pollingVerticle extends AbstractVerticle {
 
         String credentials = result.toString();
 
+        JsonArray deviceDataArray = new JsonArray();
+
         JsonArray credentialArray = new JsonArray(credentials);
 
-        vertx.executeBlocking(pollSsh ->{
+        for (Object object:credentialArray) {
 
-          JsonArray pollData = runPluginPolling(credentialArray,new JsonObject().put("category","polling").put("type","ssh"));
+          JsonObject dataObject = (JsonObject) object;
+
+          JsonObject deviceData = new JsonObject();
+
+          deviceData.put("type", dataObject.getValue("TYPE"))
+            .put("ip", dataObject.getValue("IPADDRESS")).put("category","polling");
+          deviceDataArray.add(deviceData);
+
+        }
+
+        vertx.executeBlocking(pollPing ->{
+
+          JsonArray pollData = runPluginPolling(deviceDataArray);
 
           insertPollData(pollData);
 
@@ -138,8 +169,6 @@ public class pollingVerticle extends AbstractVerticle {
 
         String credentials = messageAsyncResult.result().body().toString();
 
-        System.out.println(credentials);
-
         promise.complete(credentials);
 
 
@@ -154,6 +183,19 @@ public class pollingVerticle extends AbstractVerticle {
   }
 
   private void insertPollData(JsonArray pollData){
+
+    eventBus.request("insertInPolling",pollData,reply ->{
+
+      if (reply.succeeded()){
+
+        logger.info("Polling Data Inserted Successfully");
+      }else {
+
+        logger.error("Polling data insert failed");
+      }
+
+
+    });
 
 
 

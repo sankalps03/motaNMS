@@ -35,8 +35,6 @@ public class Utilities {
 
           var resultObject=resultArray.getJsonObject(0);
 
-          System.out.println(resultObject);
-
         if(resultObject.getString("status").equals("success")){
           credential.put("STATUS", "SUCCESSFUL");
         }else{
@@ -72,13 +70,13 @@ public class Utilities {
       return dataArray;
   }
 
-  public static JsonArray runPluginPolling(JsonArray data, JsonObject credential) {
+  public static JsonArray runPluginPolling(JsonArray data) {
 
-    var error = new ArrayList<String>();
+    System.out.println(data);
 
-    String dataEncoder = (Base64.getEncoder().encodeToString((credential).toString().getBytes(StandardCharsets.UTF_8)));
+    JsonObject credential = data.getJsonObject(0);
 
-    String encoder = (Base64.getEncoder().encodeToString((credential).toString().getBytes(StandardCharsets.UTF_8)));
+    String dataEncoder = (Base64.getEncoder().encodeToString((data).toString().getBytes(StandardCharsets.UTF_8)));
 
     BufferedReader reader = null;
 
@@ -87,7 +85,7 @@ public class Utilities {
     var dataArray = new JsonArray();
 
     try {
-      process = new ProcessBuilder("src/main/java/com/example/MotaNMS/Plugins/poll.exe", encoder,dataEncoder).start();
+      process = new ProcessBuilder("src/main/java/com/example/MotaNMS/Plugins/poll.exe",dataEncoder).start();
 
       reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
@@ -120,7 +118,6 @@ public class Utilities {
 
       e.printStackTrace();
 
-      error.add(e.getMessage());
 
     } finally {
 
@@ -132,7 +129,6 @@ public class Utilities {
 
         }catch (Exception e){
 
-          error.add(e.getMessage());
         }
         process.destroy();
       }

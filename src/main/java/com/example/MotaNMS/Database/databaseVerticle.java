@@ -8,7 +8,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.example.MotaNMS.Services.sqlQueries;
 
 
 public class databaseVerticle extends AbstractVerticle {
@@ -36,6 +37,8 @@ public class databaseVerticle extends AbstractVerticle {
 
     eventBus.localConsumer("addToDiscovery").handler(this::insert);
 
+    eventBus.localConsumer("insertInPolling").handler(this::insert);
+
     eventBus.localConsumer("deleteFromDiscovery").handler(this::rowIdOperation);
 
     eventBus.localConsumer("deleteFromMonitor").handler(this::rowIdOperation);
@@ -53,6 +56,8 @@ public class databaseVerticle extends AbstractVerticle {
     eventBus.localConsumer("addToMonitor").handler(this::rowIdOperation);
 
     eventBus.localConsumer("setProvisionTrue").handler(this::rowIdOperation);
+
+    eventBus.localConsumer("deviceDataFromDB").handler(this::select);
 
     startPromise.complete();
 
@@ -75,6 +80,11 @@ public class databaseVerticle extends AbstractVerticle {
 
           prepared.setInt(1, Integer.valueOf(data.getString("id")));
 
+        }else if(data.containsKey("ip")){
+
+          prepared.setString(1,data.getString("ip"));
+
+          prepared.setString(2,data.getString("ip"));
         }
 
         ResultSet resultSet = prepared.executeQuery();
@@ -161,13 +171,53 @@ public class databaseVerticle extends AbstractVerticle {
     vertx.executeBlocking(indertOperaton -> {
       try {
 
-        JsonObject data = (JsonObject) message.body();
+        Object insertData = message.body();
+
+        String query;
+
+        JsonObject data = null;
+
+        JsonArray dataArray = null;
+
+        if (insertData instanceof JsonArray) {
+
+          dataArray = (JsonArray) insertData;
+
+          query = sqlQueries.insertPolling();
+
+        } else {
+          data = (JsonObject) message.body();
+
+          query = data.getString("query");
+        }
 
         Connection connection = pool.getConnection();
 
-        PreparedStatement prepared = connection.prepareStatement(data.getString("query"));
+        PreparedStatement prepared = connection.prepareStatement(query);
 
-          data = (JsonObject) message.body();
+        if (insertData instanceof JsonArray) {
+
+          for (Object JsonData : dataArray) {
+
+            data = (JsonObject) JsonData;
+
+            prepared.setString(1, data.getString("ip"));
+
+            prepared.setString(2, data.getString("type"));
+
+            prepared.setString(3, data.getString("metricType"));
+
+            prepared.setString(4, data.getString("metricValue"));
+
+            prepared.setString(5, data.getString("timestamp"));
+
+            prepared.addBatch();
+
+          }
+
+          prepared.executeBatch();
+
+        } else {
 
           prepared.setString(1, data.getString("ip"));
 
@@ -175,7 +225,9 @@ public class databaseVerticle extends AbstractVerticle {
 
           prepared.setString(3, data.getJsonObject("credentials").toString());
 
-        prepared.execute();
+          prepared.execute();
+
+        }
 
         connectionPool.releaseConnection(connection);
 
@@ -189,7 +241,7 @@ public class databaseVerticle extends AbstractVerticle {
 
         logger.error(exception.getMessage());
       }
-    },false);
+    }, false);
 
   }
 

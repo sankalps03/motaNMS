@@ -6,10 +6,13 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.properties.PropertyFileAuthentication;
+import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.*;
+import io.vertx.ext.web.handler.sockjs.SockJSBridgeOptions;
+import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.sstore.LocalSessionStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +55,14 @@ public class publicApiVerticle extends AbstractVerticle {
         context.reroute("/api");
       });
 
+      SockJSHandler jsHandler = SockJSHandler.create(vertx);
+
+      SockJSBridgeOptions bridgeOptions = new SockJSBridgeOptions()
+        .addInboundPermitted(new PermittedOptions().setAddressRegex("updates.*"))
+        .addOutboundPermitted(new PermittedOptions().setAddressRegex("updates.*"));
+
+      router.mountSubRouter("/eventbus",jsHandler.bridge(bridgeOptions));
+
       router.route(HttpMethod.POST,"/api/discovery/add").handler(this::discoveryAdd);
 
       router.route(HttpMethod.POST,"/api/discovery/delete").handler(this::discoveryDelete);
@@ -68,7 +79,7 @@ public class publicApiVerticle extends AbstractVerticle {
 
       router.route(HttpMethod.POST,"/api/monitor/delete").handler(this::monitorDelete);
 
-      router.route(HttpMethod.GET,"/api/monitor/device").handler(this::monitorDevice);
+      router.route(HttpMethod.POST,"/api/monitor/device").handler(this::monitorDevice);
 
       router.route().handler(StaticHandler.create().setCachingEnabled(false));
 
@@ -83,6 +94,25 @@ public class publicApiVerticle extends AbstractVerticle {
   }
 
   private void monitorDevice(RoutingContext context) {
+
+    logger.info("monitor device request");
+
+    JsonObject data = context.body().asJsonObject();
+
+    eventBus.request("monitorLoadDevice",data,reply ->{
+
+      if (reply.succeeded()){
+
+        String discoveryData = reply.result().body().toString();
+
+        context.response().end(discoveryData);
+
+      }
+      else {
+
+        sendStatusCode(context,500);
+      }
+    });
   }
 
   private void monitorDelete(RoutingContext context) {

@@ -13,7 +13,7 @@ var discovery = {
     api.ajaxCall(ajaxData)
 
     var dataTable = $('#discoveryTable').DataTable({
-      "pageLength": 10,
+      "pageLength": 20,
       "dom": '<"top">ct<"top"p><"clear">'
 
     });

@@ -57,18 +57,18 @@ public class Main {
         }
       });
 
-//      vertx.deployVerticle(pollingVerticle.class.getName()).onComplete(handler ->{
-//
-//        if (handler.succeeded()){
-//
-//          logger.info("Polling verticle deployed successfully");
-//
-//        }else {
-//
-//          logger.error(handler.result().toString());
-//
-//        }
-//      });
+      vertx.deployVerticle(pollingVerticle.class.getName()).onComplete(handler ->{
+
+        if (handler.succeeded()){
+
+          logger.info("Polling verticle deployed successfully");
+
+        }else {
+
+          logger.error(handler.result().toString());
+
+        }
+      });
 
     } catch (Exception exception) {
 
