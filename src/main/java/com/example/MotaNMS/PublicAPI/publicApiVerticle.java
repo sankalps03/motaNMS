@@ -7,7 +7,6 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.properties.PropertyFileAuthentication;
 import io.vertx.ext.bridge.PermittedOptions;
-import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.*;
@@ -38,7 +37,7 @@ public class publicApiVerticle extends AbstractVerticle {
 
       router.post().handler(bodyHandler);
 
-      Route handler = router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)));
+      router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)));
 
       PropertyFileAuthentication authenticate = PropertyFileAuthentication.create(vertx,"./user.properties");
 
@@ -52,7 +51,7 @@ public class publicApiVerticle extends AbstractVerticle {
 
         context.clearUser();
 
-        context.reroute("/api");
+        context.reroute("/api/*");
       });
 
       SockJSHandler jsHandler = SockJSHandler.create(vertx);
@@ -61,13 +60,11 @@ public class publicApiVerticle extends AbstractVerticle {
         .addInboundPermitted(new PermittedOptions().setAddressRegex("updates.*"))
         .addOutboundPermitted(new PermittedOptions().setAddressRegex("updates.*"));
 
-      router.mountSubRouter("/eventbus",jsHandler.bridge(bridgeOptions));
+      router.mountSubRouter("/api/eventbus",jsHandler.bridge(bridgeOptions));
 
       router.route(HttpMethod.POST,"/api/discovery/add").handler(this::discoveryAdd);
 
       router.route(HttpMethod.POST,"/api/discovery/delete").handler(this::discoveryDelete);
-
-      router.route(HttpMethod.POST,"/api/discovery/update").handler(this::discoveryUpdate);
 
       router.route(HttpMethod.POST,"/api/discovery/run").handler(this::discoveryRun);
 
@@ -195,13 +192,6 @@ public class publicApiVerticle extends AbstractVerticle {
     });
   }
 
-  private void discoveryUpdate(RoutingContext routingContext) {
-
-    String address ="discoveryUpdate";
-
-    requestEventBusCRUD(routingContext,address);
-  }
-
   private void discoveryDelete(RoutingContext routingContext) {
 
     logger.info("Discovery delete Request");
@@ -254,7 +244,7 @@ public class publicApiVerticle extends AbstractVerticle {
 
     context.response().setStatusCode(statusCode).end();
 
-    logger.info("response status code", statusCode);
+    logger.info("response status code" + statusCode);
 
   }
 

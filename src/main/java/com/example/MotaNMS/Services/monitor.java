@@ -92,11 +92,11 @@ public class monitor {
 
     if(deviceIp.getString("type").equals("ssh")){
 
-      query= sqlQueries.selectAllLatestData();
+      query= sqlQueries.selectAllLatestData(deviceIp.getString("ip"));
 
     }else {
 
-      query = sqlQueries.selectPingLatestData();
+      query = sqlQueries.selectPingLatestData(deviceIp.getString("ip"));
 
     }
 

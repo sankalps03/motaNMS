@@ -7,8 +7,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.example.MotaNMS.Util.Utilities.runPlugin;
 import static com.example.MotaNMS.Util.Utilities.runPluginPolling;
 
 
@@ -119,23 +117,6 @@ public class discovery {
 
   }
 
-  protected void update(Message<Object> message) {
-
-    JsonObject updateData = (JsonObject) message.body();
-
-    String credentials = null;
-
-    String ip = updateData.getString("ip");
-
-    String type = updateData.getString("type");
-
-    if (type.equals("ssh") || type.equals("snmp")) {
-
-      credentials = updateData.getString("credentials");
-
-    }
-
-  }
 
   protected void run(Message<Object> message) {
 
@@ -147,7 +128,7 @@ public class discovery {
 
       System.out.println(id);
 
-      eventBus.request("getCredentialsFromDiscovery", new JsonObject().put("query", sqlQueries.selectRunDiscovery()).put("id", id),
+      eventBus.request("getCredentialsFromDiscovery", new JsonObject().put("query", sqlQueries.selectRunDiscovery(id)),
         reply -> {
 
           if (reply.succeeded()) {

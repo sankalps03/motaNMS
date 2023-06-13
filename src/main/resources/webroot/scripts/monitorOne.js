@@ -83,11 +83,16 @@ var monitor = {
 
             if (data === "TRUE") {
 
-              return '<span class="mode mode_on">ACTIVE</span>'
+              return '<span class="mode mode_on">up</span>'
 
-            } else {
+            } else if(data === "FALSE") {
 
-              return '<span class="mode mode_off">INACTIVE</span>'
+              return '<span class="mode mode_off">Down</span>'
+            }
+            else {
+
+              return '<span class="mode mode_process">UNKNOWN</span>'
+
             }
           }
         },
@@ -108,7 +113,7 @@ var monitor = {
     });
     },
 
-  btnsuccessMonitor:function  (){
+  btnsuccessMonitor:function  (result){
 
   monitor.loadMonitor;
 }

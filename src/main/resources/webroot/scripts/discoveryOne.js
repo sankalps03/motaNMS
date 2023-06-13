@@ -45,7 +45,9 @@ var discovery = {
         type: "POST",
         data: JSON.stringify(formData),
         dataType: 'json',
-        successCallback: discovery.btnsuccessDiscovery
+        successCallback: discovery.btnsuccessDiscovery,
+        failCallback : discovery.btnsuccessDiscovery
+
       }
 
       api.ajaxCall(addajaxData);
@@ -66,7 +68,9 @@ var discovery = {
         type: "POST",
         data: JSON.stringify(id),
         dataType: 'json',
-        successCallback: discovery.btnsuccessDiscovery
+        successCallback: discovery.btnsuccessDiscovery,
+        failCallback : discovery.btnsuccessDiscovery
+
 
       }
 
@@ -87,7 +91,9 @@ var discovery = {
         type: "POST",
         data: JSON.stringify(id),
         dataType: 'json',
-        successCallback: discovery.btnsuccessDiscovery
+        successCallback: discovery.btnsuccessDiscovery,
+        failCallback : discovery.btnsuccessDiscovery
+
 
       }
 
@@ -107,7 +113,8 @@ var discovery = {
         type: "POST",
         data: JSON.stringify(id),
         dataType: 'json',
-        successCallback: discovery.btnsuccessDiscovery
+        successCallback: discovery.btnsuccessDiscovery,
+        failCallback : discovery.btnsuccessDiscovery
       }
 
       api.ajaxCall(provisionAjaxData)
@@ -179,9 +186,11 @@ var discovery = {
   closeForm:function() {
     document.getElementById("addForm").style.display = "none";},
 
-  btnsuccessDiscovery :function  (){
+  btnsuccessDiscovery :function  (result){
 
   discovery.loadDiscovery();
+
+  console.log(result)
 }
 
 

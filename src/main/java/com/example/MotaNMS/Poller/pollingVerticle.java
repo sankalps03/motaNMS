@@ -90,7 +90,7 @@ public class pollingVerticle extends AbstractVerticle {
 
           JsonObject deviceData = new JsonObject();
 
-          deviceData.put("type", dataObject.getValue("TYPE"))
+          deviceData.put("type", "ping")
             .put("ip", dataObject.getValue("IPADDRESS")).put("category","polling");
           deviceDataArray.add(deviceData);
 
@@ -152,7 +152,7 @@ public class pollingVerticle extends AbstractVerticle {
       }
       else {
 
-        logger.error("couldnt get devices data");
+        logger.error("couldn't get devices data");
       }
     });
 

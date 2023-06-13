@@ -1,4 +1,17 @@
 $(function() {
+
+  var eventBus = new EventBus('/api/eventbus');
+
+  eventBus.onopen = function () {
+
+    eventBus.registerHandler('updates.Dashboard', function (err, msg) {
+
+      console.log(JSON.stringify(msg));
+
+      // updateDatatable(JSON.stringify(msg));
+
+    });
+  }
     var a = {
             labels: ["Sunday", "Munday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
             datasets: [{
@@ -87,28 +100,6 @@ $(function() {
       }
     ]
   });
-
-
-  var doughnutData = {
-      labels: ["Desktop","Tablet","Mobile" ],
-      datasets: [{
-          data: [47,30,23],
-          backgroundColor: ["rgb(255, 99, 132)","rgb(54, 162, 235)","rgb(255, 205, 86)"]
-      }]
-  } ;
-
-
-  var doughnutOptions = {
-      responsive: true,
-      legend: {
-        display: false
-      },
-  };
-
-
-  var ctx4 = document.getElementById("doughnut_chart").getContext("2d");
-  new Chart(ctx4, {type: 'doughnut', data: doughnutData, options:doughnutOptions});
-
 
 
 });

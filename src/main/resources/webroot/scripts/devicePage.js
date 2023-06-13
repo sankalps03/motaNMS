@@ -1,5 +1,4 @@
 
-
 var device ={
 
   onload: function (deviceId){
@@ -36,7 +35,7 @@ var device ={
 
     document.getElementById("loss").innerHTML = deviceData["ping.packet.loss"];
 
-    if(data.hasOwnProperty('disk.percent.used')) {
+    if(deviceData.hasOwnProperty('disk.percent.used')) {
 
       document.getElementById("cpu").innerHTML = deviceData["cpu.percent.total"];
 

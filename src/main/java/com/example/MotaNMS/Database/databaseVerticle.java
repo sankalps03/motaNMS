@@ -59,6 +59,10 @@ public class databaseVerticle extends AbstractVerticle {
 
     eventBus.localConsumer("deviceDataFromDB").handler(this::select);
 
+    eventBus.localConsumer("toprtt").handler(this::select);
+
+
+
     startPromise.complete();
 
 
@@ -75,17 +79,6 @@ public class databaseVerticle extends AbstractVerticle {
         Connection connection = pool.getConnection();
 
         PreparedStatement prepared = connection.prepareStatement(data.getString("query"));
-
-        if (data.containsKey("id")) {
-
-          prepared.setInt(1, Integer.valueOf(data.getString("id")));
-
-        }else if(data.containsKey("ip")){
-
-          prepared.setString(1,data.getString("ip"));
-
-          prepared.setString(2,data.getString("ip"));
-        }
 
         ResultSet resultSet = prepared.executeQuery();
 
