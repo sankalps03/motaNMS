@@ -48,7 +48,7 @@ public interface sqlQueries{
 
   static String selectAllLatestData(String ip){
 
-    return "SELECT p.METRICTYPE, p.METRICVALUE FROM polling p WHERE p.IPADDRESS = '"+ip+"' AND p.METRICTYPE IN ('ping.packet.sent', 'ping.packet.rcv', 'ping.packet.rtt', 'cpu.percent.total', 'disk.percent.used','memory.percent.used','ping.packet.loss') AND p.TIMESTAMP = (SELECT MAX(TIMESTAMP) FROM polling WHERE IPADDRESS = '"+ip+"' AND METRICTYPE = p.METRICTYPE )";
+    return "SELECT p.METRICTYPE, p.METRICVALUE FROM polling p WHERE p.IPADDRESS = '?' AND p.METRICTYPE IN ('ping.packet.sent', 'ping.packet.rcv', 'ping.packet.rtt', 'cpu.percent.total', 'disk.percent.used','memory.percent.used','ping.packet.loss') AND p.TIMESTAMP = (SELECT MAX(TIMESTAMP) FROM polling WHERE IPADDRESS = '?' AND METRICTYPE = p.METRICTYPE )";
   }
 
   static String selectPingLatestData(String ip){
