@@ -4,8 +4,10 @@ var discovery = {
 
     $('#body').html(discoveryPage)
 
+    document.getElementById("header").innerHTML = "Discovery";
+
     var ajaxData = {
-      url: "http://localhost:8080/api/discovery/load",
+      url: "https://localhost:8080/api/discovery/load",
       type: "GET",
       successCallback: this.updateDiscoveryTable
     }
@@ -41,7 +43,7 @@ var discovery = {
 
       let addajaxData = {
 
-        url: "http://localhost:8080/api/discovery/add",
+        url: "https://localhost:8080/api/discovery/add",
         type: "POST",
         data: JSON.stringify(formData),
         dataType: 'json',
@@ -64,7 +66,7 @@ var discovery = {
 
       let deleteAjaxData = {
 
-        url: "http://localhost:8080/api/discovery/delete",
+        url: "https://localhost:8080/api/discovery/delete",
         type: "POST",
         data: JSON.stringify(id),
         dataType: 'json',
@@ -87,7 +89,7 @@ var discovery = {
 
       let runAjaxData = {
 
-        url: "http://localhost:8080/api/discovery/run",
+        url: "https://localhost:8080/api/discovery/run",
         type: "POST",
         data: JSON.stringify(id),
         dataType: 'json',
@@ -109,7 +111,7 @@ var discovery = {
 
       let provisionAjaxData = {
 
-        url: "http://localhost:8080/api/discovery/provision",
+        url: "https://localhost:8080/api/discovery/provision",
         type: "POST",
         data: JSON.stringify(id),
         dataType: 'json',

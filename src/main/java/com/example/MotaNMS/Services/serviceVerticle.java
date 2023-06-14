@@ -1,6 +1,7 @@
 package com.example.MotaNMS.Services;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.EventBus;
@@ -8,9 +9,9 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.List;
+import java.util.ArrayList;
 
-import java.lang.reflect.Array;
-import java.util.HashMap;
 
 public class serviceVerticle extends AbstractVerticle {
 
@@ -48,7 +49,9 @@ public class serviceVerticle extends AbstractVerticle {
 
       eventBus.localConsumer("monitorLoadDevice").handler(monitor::loadDeviceData);
 
-      vertx.setTimer(5000, handler -> vertx.setPeriodic(5000, Handler -> getTop5Data()));
+      eventBus.localConsumer("dashboardLoad",handler ->getTop5Data());
+
+      vertx.setPeriodic(5*60*1000, Handler -> getTop5Data());
 
       startPromise.complete();
 
@@ -60,46 +63,32 @@ public class serviceVerticle extends AbstractVerticle {
 
   }
 
-  private Future<HashMap> getTop5Data() {
+  private void getTop5Data() {
 
-    Promise<HashMap> promise = Promise.promise();
+    List<JsonArray> dashBoardData = new ArrayList<>();
 
-    String[] topDataTypes = {"rtt", "cpu", "disk", "memory"};
+    CompositeFuture.join(top5DbRequest(sqlQueries.selectTop5Memory()),
+      top5DbRequest(sqlQueries.selectTop5Cpu()),
+      top5DbRequest(sqlQueries.selectTop5Disk()),
+      top5DbRequest(sqlQueries.selectTop5rtt())).onComplete(handler -> {
 
-    HashMap<String, JsonArray> dashboardData = new HashMap<>();
+      if (handler.succeeded()) {
 
-    for (String type : topDataTypes) {
+        for (int i = 0; i < handler.result().size(); i++) {
 
-      String query = null;
+          JsonArray future = handler.result().resultAt(i);
 
-      switch (type) {
-        case "rtt":
+          dashBoardData.add(future);
 
-          query = sqlQueries.selectTop5rtt();
+        }
+        System.out.println(dashBoardData);
 
-          break;
-        case "cpu":
-
-          query = sqlQueries.selectTop5Cpu();
-
-          break;
-        case "disk":
-
-          query = sqlQueries.selectTop5Disk();
-
-          break;
-        case "memory":
-
-          query = sqlQueries.selectTop5Memory();
-
-          break;
+        eventBus.publish("updates.Dashboard",dashBoardData.toString());
       }
 
-      top5DbRequest(query);
-
-    }
-    return promise.future();
+    });
   }
+
 
   private Future<JsonArray> top5DbRequest(String query) {
 

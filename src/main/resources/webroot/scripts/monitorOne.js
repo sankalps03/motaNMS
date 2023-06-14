@@ -4,8 +4,11 @@ var monitor = {
 
     $('#body').html(monitorPage)
 
+    document.getElementById("header").innerHTML = "Monitor";
+
+
     let ajaxData = {
-      url: "http://localhost:8080/api/monitor/load",
+      url: "https://localhost:8080/api/monitor/load",
       type: "GET",
       successCallback: this.updateMonitorTable
     }
@@ -31,7 +34,7 @@ var monitor = {
 
       let deleteAjaxData = {
 
-        url: "http://localhost:8080/api/monitor/delete",
+        url: "https://localhost:8080/api/monitor/delete",
         type: "POST",
         data: JSON.stringify(id),
         dataType: 'json',

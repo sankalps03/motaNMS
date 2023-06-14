@@ -5,16 +5,22 @@ var device ={
 
     $('#body').html(devicePage)
 
-    if (deviceId["type"] === "ping"){
+    document.getElementById("header").innerHTML = "Device Info";
 
-      document.getElementById("sshRow").style.display = "none";
 
+    if (deviceId["type"] === "ssh"){
+
+      document.getElementById("pingRow").style.display = "none";
+
+    }else if(deviceId["type"] == "ping"){
+
+      document.getElementById("sshRow").style.display ="none";
     }
 
 
     let deviceAjaxData = {
 
-      url: "http://localhost:8080/api/monitor/device",
+      url: "https://localhost:8080/api/monitor/device",
       type: "POST",
       data: JSON.stringify(deviceId),
       dataType: 'json',
@@ -27,11 +33,11 @@ var device ={
 
   updatePage : function (deviceData){
 
-    document.getElementById("rtt").innerHTML = deviceData["ping.packet.rtt"];
+    document.getElementById("rtt1").innerHTML = deviceData["ping.packet.rtt"];
 
-    document.getElementById("sent").innerHTML = deviceData["ping.packet.sent"];
+    document.getElementById("sent").innerHTML = (deviceData["ping.packet.sent"]).split(".")[0];
 
-    document.getElementById("received").innerHTML = deviceData["ping.packet.rcv"];
+    document.getElementById("received").innerHTML = (deviceData["ping.packet.rcv"]).split(".")[0];
 
     document.getElementById("loss").innerHTML = deviceData["ping.packet.loss"];
 
@@ -42,6 +48,9 @@ var device ={
       document.getElementById("memory").innerHTML = deviceData["memory.percent.used"];
 
       document.getElementById("disk").innerHTML = deviceData["disk.percent.used"];
+
+      document.getElementById("rtt").innerHTML = deviceData["ping.packet.rtt"];
+
     }
 
   }

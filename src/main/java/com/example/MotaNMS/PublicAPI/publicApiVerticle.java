@@ -4,7 +4,9 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.net.JksOptions;
 import io.vertx.ext.auth.properties.PropertyFileAuthentication;
 import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.Router;
@@ -78,9 +80,13 @@ public class publicApiVerticle extends AbstractVerticle {
 
       router.route(HttpMethod.POST,"/api/monitor/device").handler(this::monitorDevice);
 
+      router.route(HttpMethod.POST,"/api/dashboard").handler(this::loadDashboard);
+
       router.route().handler(StaticHandler.create().setCachingEnabled(false));
 
-      vertx.createHttpServer().requestHandler(router).listen(HTTP_PORT).onSuccess(done -> logger.info("Listening on port: "+ HTTP_PORT));
+      vertx.createHttpServer(new HttpServerOptions().setSsl(true).setKeyStoreOptions(
+        new JksOptions().setPath("server-keystore.jks").setPassword("sankalp"))).requestHandler(router).listen(HTTP_PORT).onSuccess(done-> logger.info("Listening on port: "+ HTTP_PORT));
+
 
       startPromise.complete();
 
@@ -88,6 +94,14 @@ public class publicApiVerticle extends AbstractVerticle {
 
       logger.error(exception.getMessage());
     }
+  }
+
+  private void loadDashboard(RoutingContext context) {
+
+    logger.info("Dashboard load Request");
+
+    eventBus.send("dashboardLoad","dashBoard");
+
   }
 
   private void monitorDevice(RoutingContext context) {
@@ -215,6 +229,8 @@ public class publicApiVerticle extends AbstractVerticle {
 
   private void requestEventBusCRUD(RoutingContext context, String address){
 
+    try {
+
     JsonObject data = context.body().asJsonObject();
 
     eventBus.request(address,data,reply ->{
@@ -230,6 +246,10 @@ public class publicApiVerticle extends AbstractVerticle {
 
     });
 
+  }catch (Exception exception){
+
+      logger.error(exception.getMessage());
+    }
   }
 
   private void forwardJson(RoutingContext ctx, JsonObject resp) {

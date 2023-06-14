@@ -6,100 +6,69 @@ $(function() {
 
     eventBus.registerHandler('updates.Dashboard', function (err, msg) {
 
-      console.log(JSON.stringify(msg));
+      console.log(msg)
 
-      // updateDatatable(JSON.stringify(msg));
+      let messageArray = JSON.parse(msg.body)
 
-    });
-  }
-    var a = {
-            labels: ["Sunday", "Munday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-            datasets: [{
-                label: "Data 1",
-                borderColor: 'rgba(52,152,219,1)',
-                backgroundColor: 'rgba(52,152,219,1)',
-                pointBackgroundColor: 'rgba(52,152,219,1)',
-                data: [29, 48, 40, 19, 78, 31, 85]
-            },{
-                label: "Data 2",
-                backgroundColor: "#DADDE0",
-                borderColor: "#DADDE0",
-                data: [45, 80, 58, 74, 54, 59, 40]
-            }]
-        },
-        t = {
-            responsive: !0,
-            maintainAspectRatio: !1
-        },
-        e = document.getElementById("bar_chart").getContext("2d");
-    new Chart(e, {
-        type: "line",
-        data: a,
-        options: t
-    });
+      messageArray.forEach(function(jsonArray) {
 
-    // World Map
-  var mapData = {
-    "US": 7402,
-    'RU': 5105,
-    "AU": 4700,
-    "CN": 4650,
-    "FR": 3800,
-    "DE": 3780,
-    "GB": 2400,
-    "SA": 2350,
-    "BR": 2270,
-    "IN": 1870,
-  }
-  $('#world-map').vectorMap({
-    map: 'world_mill_en',
-    backgroundColor: 'transparent',
-    regionStyle: {
-        initial: {
-            fill: '#DADDE0',
+        if (jsonArray[0].hasOwnProperty("MAX_CPU")){
+
+          updateTop5Cpu(jsonArray,"MAX_CPU","topCpuUsage");
+
+
+        }else if (jsonArray[0].hasOwnProperty("MAX_DISK")){
+
+          updateTop5Cpu(jsonArray,"MAX_DISK","topDiskUsage");
+
+
+        }else if (jsonArray[0].hasOwnProperty("MAX_MEMORY")){
+
+          updateTop5Cpu(jsonArray,"MAX_MEMORY","topMemoryUsage");
+
+
+        }else if (jsonArray[0].hasOwnProperty("MAX_RTT")){
+
+          updateTop5Cpu(jsonArray,"MAX_RTT","topRtt");
+
         }
-    },
-    showTooltip: true,
-    onRegionTipShowx: function(e, el, code){
-        el.html(el.html()+' (Visits - '+mapData[code]+')');
-    },
-    markerStyle: {
-      initial: {
-        fill  : '#3498db',
-        stroke: '#333'
-      }
-    },
-    markers: [
-      {
-        latLng: [1.3, 103.8],
-        name: 'Singapore : 203'
-      },
-      {
-        latLng: [38, -105],
-        name: 'USA : 755',
-      },
-      {
-        latLng: [58, -115],
-        name: 'Canada : 700',
-      },
-      {
-        latLng: [-25, 140],
-        name: 'Australia : 304',
-      },
-      {
-        latLng: [55.00, -3.50],
-        name: 'UK : 202',
-      },
-      {
-        latLng: [21, 78],
-        name: 'India : 410',
-      },
-      {
-        latLng: [25.00, 54.00],
-        name: 'UAE : 180',
-      }
-    ]
+      })
+    });
+  }
+
+  let ajaxRequest={
+    url: "https://localhost:8080/api/dashboard",
+      type: "POST",
+  }
+
+  $(document).ready(function() {
+
+    setTimeout(function() {
+
+      api.ajaxCall(ajaxRequest);
+
+    }, 2000);
   });
 
+   function updateTop5Cpu (result,metricType,tableName) {
+
+    $("#"+tableName).dataTable().fnDestroy()
+
+     console.log(metricType)
+
+    let dataTable = $("#"+tableName).DataTable({
+     searching: false, paging: false, info: false,
+
+      data: result,
+      columns: [
+        {data: 'IPADDRESS'},
+        {targets:1 , data: metricType,
+        render:function (data){
+          return'<div class="progress"><div class="progress-bar progress-bar-success" role="progressbar" style="width:52%; height:5px;" aria-valuenow="52" aria-valuemin="0" aria-valuemax="100"></div></div><span class="progress-parcent">'+data+'</span>'
+        }},
+      ],
+      order: [[1, 'Desc']],
+    });
+  }
 
 });
