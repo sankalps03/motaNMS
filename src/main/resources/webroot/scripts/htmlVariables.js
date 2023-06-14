@@ -5,11 +5,11 @@ var runBtn = ' <button class="btn runBtn" ><i class="fa fa-play-circle"></i></bu
 
 var deleteBtn = '<button class="btn deleteDiscovery"><i class="fa fa-trash"></i></button>';
 
-var errorNotification =' <div class="new-message-box"> <div class="new-message-box-danger"> <div class="info-tab tip-icon-danger" title="error"><i></i></div><div class="tip-box-danger"> <p>add failed</p></div></div></div>';
+var errorNotification =' <div class="new-message-box"> <div class="new-message-box-danger"> <div class="info-tab tip-icon-danger" title="error"><i></i></div><div class="tip-box-danger"> <p>failed</p></div></div></div>';
 
 var warningNotification =' <div class="new-message-box"> <div class="new-message-box-warning"> <div class="info-tab tip-icon-warning" title="warning"><i></i></div><div class="tip-box-warning"> <p> warning </p></div></div></div>';
 
-var successNotification =' <div class="new-message-box"> <div class="new-message-box-success"> <div class="info-tab tip-icon-success" title="success"><i></i></div><div class="tip-box-success"> <p> add success </p></div></div></div>';
+var successNotification =' <div class="new-message-box"> <div class="new-message-box-success"> <div class="info-tab tip-icon-success" title="success"><i></i></div><div class="tip-box-success"> <p> success </p></div></div></div>';
 
 var infoNotification ='<div class="new-message-box"> <div class="new-message-box-info"> <div class="info-tab tip-icon-info" title="info"><i></i></div><div class="tip-box-info"> <p> Info</p></div></div></div>';
 

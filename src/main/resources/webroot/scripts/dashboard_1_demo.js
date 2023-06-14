@@ -1,4 +1,4 @@
-$(function() {
+$(function () {
 
   var eventBus = new EventBus('/api/eventbus');
 
@@ -10,62 +10,75 @@ $(function() {
 
       let messageArray = JSON.parse(msg.body)
 
-      messageArray.forEach(function(jsonArray) {
+      messageArray.forEach(function (jsonArray) {
 
-        if (jsonArray[0].hasOwnProperty("MAX_CPU")){
+        if (jsonArray && jsonArray.length > 0) {
 
-          updateTop5Cpu(jsonArray,"MAX_CPU","topCpuUsage");
+          if (jsonArray[0].hasOwnProperty("MAX_CPU")) {
 
-
-        }else if (jsonArray[0].hasOwnProperty("MAX_DISK")){
-
-          updateTop5Cpu(jsonArray,"MAX_DISK","topDiskUsage");
+            updateTop5Cpu(jsonArray, "MAX_CPU", "topCpuUsage");
 
 
-        }else if (jsonArray[0].hasOwnProperty("MAX_MEMORY")){
+          } else if (jsonArray[0].hasOwnProperty("MAX_DISK")) {
 
-          updateTop5Cpu(jsonArray,"MAX_MEMORY","topMemoryUsage");
+            updateTop5Cpu(jsonArray, "MAX_DISK", "topDiskUsage");
 
 
-        }else if (jsonArray[0].hasOwnProperty("MAX_RTT")){
+          } else if (jsonArray[0].hasOwnProperty("MAX_MEMORY")) {
 
-          updateTop5Cpu(jsonArray,"MAX_RTT","topRtt");
+            updateTop5Cpu(jsonArray, "MAX_MEMORY", "topMemoryUsage");
 
+
+          } else if (jsonArray[0].hasOwnProperty("MAX_RTT")) {
+
+            updateTop5Cpu(jsonArray, "MAX_RTT", "topRtt");
+
+          } else if (jsonArray[0].hasOwnProperty("TOTAL_COUNT")) {
+
+            document.getElementById("up").innerHTML = jsonArray[0].UP_COUNT;
+            document.getElementById("down").innerHTML = jsonArray[0].DOWN_COUNT;
+            document.getElementById("unknown").innerHTML = jsonArray[0].UNKNOWN_COUNT;
+            document.getElementById("total").innerHTML = jsonArray[0].TOTAL_COUNT;
+
+
+          }
         }
       })
     });
   }
 
-  let ajaxRequest={
+  let ajaxRequest = {
     url: "https://localhost:8080/api/dashboard",
-      type: "POST",
+    type: "POST",
   }
 
-  $(document).ready(function() {
+  $(document).ready(function () {
 
-    setTimeout(function() {
+    setTimeout(function () {
 
       api.ajaxCall(ajaxRequest);
 
-    }, 2000);
+    }, 1000);
   });
 
-   function updateTop5Cpu (result,metricType,tableName) {
+  function updateTop5Cpu(result, metricType, tableName) {
 
-    $("#"+tableName).dataTable().fnDestroy()
+    $("#" + tableName).dataTable().fnDestroy()
 
-     console.log(metricType)
+    console.log(metricType)
 
-    let dataTable = $("#"+tableName).DataTable({
-     searching: false, paging: false, info: false,
+    let dataTable = $("#" + tableName).DataTable({
+      searching: false, paging: false, info: false,
 
       data: result,
       columns: [
         {data: 'IPADDRESS'},
-        {targets:1 , data: metricType,
-        render:function (data){
-          return'<div class="progress"><div class="progress-bar progress-bar-success" role="progressbar" style="width:52%; height:5px;" aria-valuenow="52" aria-valuemin="0" aria-valuemax="100"></div></div><span class="progress-parcent">'+data+'</span>'
-        }},
+        {
+          targets: 1, data: metricType,
+          render: function (data) {
+            return '<div class="progress"><div class="progress-bar progress-bar-success" role="progressbar" style="width:52%; height:5px;" aria-valuenow="52" aria-valuemin="0" aria-valuemax="100"></div></div><span class="progress-parcent">' + data + '</span>'
+          }
+        },
       ],
       order: [[1, 'Desc']],
     });

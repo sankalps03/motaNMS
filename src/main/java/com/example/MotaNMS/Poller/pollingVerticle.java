@@ -189,6 +189,8 @@ public class pollingVerticle extends AbstractVerticle {
       if (reply.succeeded()){
 
         logger.info("Polling Data Inserted Successfully");
+
+        eventBus.send("updateMonitorStatus",new JsonObject().put("query",sqlQueries.updateMonitorStatus()));
       }else {
 
         logger.error("Polling data insert failed");

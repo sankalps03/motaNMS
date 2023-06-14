@@ -61,11 +61,34 @@ public class databaseVerticle extends AbstractVerticle {
 
     eventBus.localConsumer("toprtt").handler(this::select);
 
+    eventBus.localConsumer("updateMonitorStatus").handler(this::update);
 
 
     startPromise.complete();
+  }
+
+  private void update(Message<Object> message) {
+
+    vertx.executeBlocking(selectOperation -> {
+
+      try {
+
+        // naming and null check
+        JsonObject data = (JsonObject) message.body();
+
+        Connection connection = pool.getConnection();
+
+        // naming
+        PreparedStatement prepared = connection.prepareStatement(data.getString("query"));
+
+        prepared.execute();
 
 
+      } catch (Exception exception) {
+
+        logger.error(exception.getMessage());
+      }
+    });
   }
 
   private void select(Message message) {

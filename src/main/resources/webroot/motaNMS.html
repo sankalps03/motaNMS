@@ -19,6 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;1,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style/discovery.css">
   <link rel="stylesheet" href="style/devicePage.css">
+  <link rel="stylesheet" href="style/notification.css">
 
 
 
@@ -90,11 +91,12 @@
                         <ul class="dropdown-menu dropdown-menu-right">
                         </ul>
                     </li>
+                  <div id="notificationContainer"></div>
                 </ul>
-                <!-- END TOP-RIGHT TOOLBAR-->
+              <!-- END TOP-RIGHT TOOLBAR-->
             </div>
         </header>
-        <!-- END HEADER-->
+      <!-- END HEADER-->
         <!-- START SIDEBAR-->
         <nav class="page-sidebar" id="sidebar">
             <div id="sidebar-collapse">
@@ -125,7 +127,7 @@
                     <div class="col-lg-3 col-md-6">
                         <div class="ibox bg-success color-white widget-stat">
                             <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">10</h2>
+                                <h2 id = "up" class="m-b-5 font-strong">0</h2>
                                 <div class="m-b-5">UP DEVICES</div>
                             </div>
                         </div>
@@ -133,7 +135,7 @@
                     <div class="col-lg-3 col-md-6">
                         <div class="ibox bg-info color-white widget-stat">
                             <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">15</h2>
+                                <h2 id = "total" class="m-b-5 font-strong">0</h2>
                                 <div class="m-b-5">TOTAL DEVICES</div>
                             </div>
                         </div>
@@ -141,7 +143,7 @@
                     <div class="col-lg-3 col-md-6">
                         <div class="ibox bg-warning color-white widget-stat">
                             <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">2</h2>
+                                <h2 id ="unknown" class="m-b-5 font-strong">0</h2>
                                 <div class="m-b-5">UNKNOWN DEVICES</div>
                             </div>
                         </div>
@@ -149,7 +151,7 @@
                     <div class="col-lg-3 col-md-6">
                         <div class="ibox bg-danger color-white widget-stat">
                             <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">3</h2>
+                                <h2 id="down" class="m-b-5 font-strong">0</h2>
                                 <div class="m-b-5">DOWN DEVICES</div>
                             </div>
                         </div>
@@ -166,7 +168,7 @@
                           <thead>
                           <tr>
                             <th>Ip Address</th>
-                            <th>Data</th>
+                            <th>Cpu %</th>
                           </tr>
                           </thead>
                         </table>
@@ -183,7 +185,7 @@
                           <thead>
                           <tr>
                             <th>Ip Address</th>
-                            <th>Data</th>
+                            <th>Disk %</th>
                           </tr>
                           </thead>
                         </table>
@@ -195,14 +197,14 @@
                   <div class="col-lg-5">
                     <div class="ibox">
                       <div class="ibox-head">
-                        <div class="ibox-title">Top 5 RTT (ms)</div>
+                        <div class="ibox-title">Top 5 RTT</div>
                       </div>
                       <div class="ibox-body">
                         <table  id ="topRtt" class="table table-striped m-t-20 visitors-table">
                           <thead>
                           <tr>
                             <th>Ip Address</th>
-                            <th>Data</th>
+                            <th>RTT (ms)</th>
                           </tr>
                           </thead>
                         </table>
@@ -219,7 +221,7 @@
                           <thead>
                           <tr>
                             <th>Ip Address</th>
-                            <th>Data</th>
+                            <th>Memory %</th>
                           </tr>
                           </thead>
                         </table>

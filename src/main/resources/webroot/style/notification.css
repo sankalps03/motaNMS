@@ -328,3 +328,8 @@ background: #FFF8E1;//100
 body {
   background-color:#ffffff;
 }
+
+#notificationContainer {
+  position: fixed;
+  z-index: 9999;
+}

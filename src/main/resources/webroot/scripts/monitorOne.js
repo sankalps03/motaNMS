@@ -84,11 +84,11 @@ var monitor = {
           data: 'STATUS',
           render: function (data) {
 
-            if (data === "TRUE") {
+            if (data === "up") {
 
               return '<span class="mode mode_on">up</span>'
 
-            } else if(data === "FALSE") {
+            } else if(data === "down") {
 
               return '<span class="mode mode_off">Down</span>'
             }
@@ -118,8 +118,17 @@ var monitor = {
 
   btnsuccessMonitor:function  (result){
 
+    discovery.showNotification("success","success")
+
   monitor.loadMonitor;
-}
+},
+  btnFailMonitor:function  (result){
+
+    discovery.showNotification("fail","error")
+
+    monitor.loadMonitor;
+
+  }
 
 }
 

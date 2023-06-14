@@ -27,7 +27,7 @@ public interface sqlQueries{
   }
 
   static String selectMonitor(){
-    return "SELECT id,ipaddress,type FROM MONITOR";
+    return "SELECT id,ipaddress,type,status FROM MONITOR";
   }
 
   static String deleteMonitor(){
@@ -71,6 +71,15 @@ public interface sqlQueries{
   static String selectTop5Disk(){
 
     return "SELECT MAX(p.METRICVALUE) AS max_disk, m.ipaddress FROM polling p, monitor m WHERE p.type = 'ssh' AND p.metricType = 'disk.percent.used' AND  p.timestamp >= NOW() - INTERVAL '5' MINUTE AND p.IPADDRESS  = m.IPADDRESS  GROUP BY p.ipaddress ORDER BY max_disk DESC LIMIT 5;";
+  }
+
+  static String deviceCount(){
+    return "SELECT COUNT(*) FILTER (WHERE status = 'up') AS up_count, COUNT(*) FILTER (WHERE status = 'down') AS down_count, COUNT(*) FILTER (WHERE status = 'unknown') AS unknown_count, COUNT(*) AS total_count FROM monitor;";
+  }
+
+  static String updateMonitorStatus(){
+
+    return "UPDATE monitor m SET m.STATUS=CASE WHEN m.IPADDRESS IN (SELECT DISTINCT p.IPADDRESS FROM polling p WHERE p.METRICTYPE='ping.packet.loss' AND p.METRICVALUE < 50 AND p.TIMESTAMP>=NOW() - INTERVAL '5' MINUTE) THEN 'up' ELSE 'down' END;";
   }
 
 

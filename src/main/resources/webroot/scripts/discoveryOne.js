@@ -71,7 +71,7 @@ var discovery = {
         data: JSON.stringify(id),
         dataType: 'json',
         successCallback: discovery.btnsuccessDiscovery,
-        failCallback : discovery.btnsuccessDiscovery
+        failCallback : discovery.btnFailDiscovery
 
 
       }
@@ -94,12 +94,14 @@ var discovery = {
         data: JSON.stringify(id),
         dataType: 'json',
         successCallback: discovery.btnsuccessDiscovery,
-        failCallback : discovery.btnsuccessDiscovery
+        failCallback : discovery.btnFailDiscovery
 
 
       }
 
       api.ajaxCall(runAjaxData)
+
+      // discovery.showNotification("success","Discovery started")
 
     });
     $('#discoveryTable').on('click', '.provisionBtn', function provision(event) {
@@ -116,7 +118,7 @@ var discovery = {
         data: JSON.stringify(id),
         dataType: 'json',
         successCallback: discovery.btnsuccessDiscovery,
-        failCallback : discovery.btnsuccessDiscovery
+        failCallback : discovery.btnFailDiscovery
       }
 
       api.ajaxCall(provisionAjaxData)
@@ -190,10 +192,28 @@ var discovery = {
 
   btnsuccessDiscovery :function  (result){
 
-  discovery.loadDiscovery();
+    discovery.showNotification("success","Discovery Successful")
 
-  console.log(result)
+    discovery.loadDiscovery();
+    },
+  btnFailDiscovery :function  (result){
+
+    discovery.showNotification("fail","Discovery Failed")
+
+    discovery.loadDiscovery();
+    },
+  showNotification:function showNotification(type,message) {
+
+    if(type === "success"){
+      var container = $('#notificationContainer').html(successNotification);
+    }else {
+      var container = $('#notificationContainer').html(errorNotification);
+    }
+    // document.getElementById("message").innerHTML = message
+    container.fadeIn().delay(3000).fadeOut();
 }
+
+
 
 
 }
