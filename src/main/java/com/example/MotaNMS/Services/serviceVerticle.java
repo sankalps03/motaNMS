@@ -70,7 +70,8 @@ public class serviceVerticle extends AbstractVerticle {
     CompositeFuture.join(top5DbRequest(sqlQueries.selectTop5Memory()),
       top5DbRequest(sqlQueries.selectTop5Cpu()),
       top5DbRequest(sqlQueries.selectTop5Disk()),
-      top5DbRequest(sqlQueries.selectTop5rtt())).onComplete(handler -> {
+      top5DbRequest(sqlQueries.selectTop5rtt()),
+      top5DbRequest(sqlQueries.deviceCount())).onComplete(handler -> {
 
       if (handler.succeeded()) {
 
