@@ -39,7 +39,7 @@ public class QueryConstants {
 
   public static final String DEVICE_COUNT_QUERY ="SELECT COUNT(*) FILTER (WHERE status = 'up') AS up_count, COUNT(*) FILTER (WHERE status = 'down') AS down_count, COUNT(*) FILTER (WHERE status = 'unknown') AS unknown_count, COUNT(*) AS total_count FROM monitor;";
 
-  public static final String UPDATE_AVAILABILITY_STATUS_QUERY ="UPDATE monitor m SET m.STATUS=CASE WHEN m.IPADDRESS IN (SELECT DISTINCT p.IPADDRESS FROM polling p WHERE p.METRICTYPE='ping.packet.loss' AND p.METRICVALUE < 50 AND p.TIMESTAMP>=NOW() - INTERVAL '5' MINUTE) THEN 'up' ELSE 'down' END;";
+  public static final String UPDATE_AVAILABILITY_STATUS_QUERY ="UPDATE monitor m SET m.STATUS=CASE WHEN m.IPADDRESS IN (SELECT DISTINCT p.IPADDRESS FROM polling p WHERE p.METRICTYPE='ping.packet.loss' > 0 AND p.METRICVALUE < 50 AND p.TIMESTAMP>=NOW() - INTERVAL '5' MINUTE) THEN 'up' ELSE 'down' END;";
 
   public static final String LAST_24_HOUR_AVAILABILITY_QUERY ="SELECT (COUNT(*) * 100.0) / (SELECT 24 * 60 / 2) AS percentage FROM polling WHERE metrictype = 'ping.packet.loss' AND ipaddress = ? AND metricvalue < '50' AND timestamp >= NOW() - INTERVAL '24' HOUR;";
 

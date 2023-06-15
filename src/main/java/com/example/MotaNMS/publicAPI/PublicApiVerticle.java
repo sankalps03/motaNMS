@@ -17,7 +17,8 @@ import org.slf4j.LoggerFactory;
 import static com.example.MotaNMS.util.GeneralConstants.*;
 
 
-public class PublicApiVerticle extends AbstractVerticle {
+public class PublicApiVerticle extends AbstractVerticle
+{
   private static final Logger LOGGER = LoggerFactory.getLogger(PublicApiVerticle.class);
 
   public void start(Promise<Void> startPromise) {
@@ -60,23 +61,23 @@ public class PublicApiVerticle extends AbstractVerticle {
 
       router.mountSubRouter("/api/eventbus", jsHandler.bridge(bridgeOptions));
 
-      router.route(HttpMethod.POST, "/api/discovery/add").handler(process::discoveryAdd);
+      router.route(HttpMethod.POST, "/api/discovery/add").handler(process::addToDiscovery);
 
       router.route(HttpMethod.POST, "/api/discovery/delete").handler(process::discoveryDelete);
 
       router.route(HttpMethod.POST, "/api/discovery/run").handler(process::discoveryRun);
 
-      router.route(HttpMethod.POST, "/api/discovery/provision").handler(process::discoveryProvision);
+      router.route(HttpMethod.POST, "/api/discovery/provision").handler(process::provisionDevice);
 
-      router.route(HttpMethod.GET, "/api/discovery/load").handler(process::discoveryLoad);
+      router.route(HttpMethod.GET, "/api/discovery/load").handler(process::loadDiscoveryTable);
 
-      router.route(HttpMethod.GET, "/api/monitor/load").handler(process::monitorLoad);
+      router.route(HttpMethod.GET, "/api/monitor/load").handler(process::loadMonitorTable);
 
-      router.route(HttpMethod.POST, "/api/monitor/delete").handler(process::monitorDelete);
+      router.route(HttpMethod.POST, "/api/monitor/delete").handler(process::deleteFromMonitor);
 
-      router.route(HttpMethod.POST, "/api/monitor/device").handler(process::monitorDevice);
+      router.route(HttpMethod.POST, "/api/monitor/device").handler(process::loadMonitorDeviceData);
 
-      router.route(HttpMethod.POST, "/api/dashboard").handler(process::loadDashboard);
+      router.route(HttpMethod.POST, "/api/dashboard").handler(process::loadDashboardData);
 
       router.route().handler(StaticHandler.create().setCachingEnabled(false));
 

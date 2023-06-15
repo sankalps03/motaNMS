@@ -19,4 +19,22 @@ public class GeneralConstants {
   public static final String ROW_ID_OPERATION ="Row id operation";
 
   public static final String UPDATE ="Update in database";
+
+  public static final String LOAD_DASHBOARD_DATA = "dashboardLoad";
+
+  public static final String LOAD_MONITOR_DEVICE_DATA ="monitorLoadDevice";
+
+  public static final String DELETE_FROM_MONITOR = "monitorDelete";
+
+  public static final String LOAD_MONITOR_TABLE ="monitorLoad";
+
+  public static final String PROVISION_DEVICE = "discoveryProvision";
+
+  public static final String ADD_TO_DISCOVERY ="discoveryAdd";
+
+  public static final String DELETE_FROM_DISCOVERY ="discoveryDelete";
+
+  public static final String RUN_DISCOVERY = "discoveryRun";
+
+  public static final String LOAD_DISCOVERY_TABLE = "discoveryLoad";
 }
