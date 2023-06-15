@@ -1,4 +1,4 @@
-package com.example.MotaNMS.Services;
+package com.example.MotaNMS.services;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
@@ -7,10 +7,10 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static com.example.MotaNMS.Util.Utilities.runPluginPolling;
+import static com.example.MotaNMS.util.Utilities.runPluginPolling;
 
 
-public class discovery {
+public class Discovery {
 
   EventBus eventBus;
 
@@ -22,13 +22,13 @@ public class discovery {
 
   }
 
-  private final Logger logger = LoggerFactory.getLogger(discovery.class);
+  private final Logger logger = LoggerFactory.getLogger(Discovery.class);
 
   protected void add(Message<Object> message) {
 
     JsonObject addData = (JsonObject) message.body();
 
-    String query = sqlQueries.insertDiscovery();
+    String query = SqlQueries.insertDiscovery();
 
     JsonObject credentials = new JsonObject();
 
@@ -88,7 +88,7 @@ public class discovery {
 
     JsonObject deleteData = (JsonObject) message.body();
 
-    String query = sqlQueries.deleteDiscovery();
+    String query = SqlQueries.deleteDiscovery();
 
     String id = deleteData.getString("id");
 
@@ -128,7 +128,7 @@ public class discovery {
 
       System.out.println(id);
 
-      eventBus.request("getCredentialsFromDiscovery", new JsonObject().put("query", sqlQueries.selectRunDiscovery(id)),
+      eventBus.request("getCredentialsFromDiscovery", new JsonObject().put("query", SqlQueries.selectRunDiscovery()).put("id",id),
         reply -> {
 
           if (reply.succeeded()) {
@@ -168,7 +168,7 @@ public class discovery {
 
               if(handler.succeeded()){
 
-                eventBus.send("setProvisionTrue",new JsonObject().put("id",id).put("query",sqlQueries.setProvision()));
+                eventBus.send("setProvisionTrue",new JsonObject().put("id",id).put("query", SqlQueries.setProvision()));
 
                 message.reply("success");
 
@@ -200,7 +200,7 @@ public class discovery {
 
     System.out.println(id);
 
-    eventBus.request("addToMonitor",new JsonObject().put("query",sqlQueries.provision()).put("id",id),
+    eventBus.request("addToMonitor",new JsonObject().put("query", SqlQueries.provision()).put("id",id),
       reply ->{
 
       if(reply.succeeded()){
@@ -224,7 +224,7 @@ public class discovery {
   protected void load(Message<Object> message) {
     try {
 
-      String query = sqlQueries.selectDiscovery();
+      String query = SqlQueries.selectDiscovery();
 
       eventBus.request("loadDiscovery", new JsonObject().put("table", "discovery").put("query", query), reply -> {
 

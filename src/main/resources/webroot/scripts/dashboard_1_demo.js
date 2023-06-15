@@ -35,10 +35,13 @@ $(function () {
 
           } else if (jsonArray[0].hasOwnProperty("TOTAL_COUNT")) {
 
-            document.getElementById("up").innerHTML = jsonArray[0].UP_COUNT;
-            document.getElementById("down").innerHTML = jsonArray[0].DOWN_COUNT;
-            document.getElementById("unknown").innerHTML = jsonArray[0].UNKNOWN_COUNT;
-            document.getElementById("total").innerHTML = jsonArray[0].TOTAL_COUNT;
+            $("#up").html(jsonArray[0].UP_COUNT);
+
+            $("#down").html(jsonArray[0].DOWN_COUNT);
+
+            $("#unknown").html(jsonArray[0].UNKNOWN_COUNT);
+
+            $("#total").html(jsonArray[0].TOTAL_COUNT);
 
 
           }

@@ -1,24 +1,10 @@
+let device = {
 
-var device ={
-
-  onload: function (deviceId){
+  onload: function (deviceId) {
 
     $('#body').html(devicePage)
 
-    document.getElementById("header").innerHTML = "Device Info";
-
-
-    if (deviceId["type"] === "ssh"){
-
-      document.getElementById("pingRow").style.display = "none";
-
-    }else if(deviceId["type"] == "ping"){
-
-      document.getElementById("sshRow").style.display ="none";
-    }
-
-
-    let deviceAjaxData = {
+    let deviceInfoAjaxData = {
 
       url: "https://localhost:8080/api/monitor/device",
       type: "POST",
@@ -27,31 +13,146 @@ var device ={
       successCallback: device.updatePage
     }
 
-    api.ajaxCall(deviceAjaxData)
+    api.ajaxCall(deviceInfoAjaxData)
+
+    $("#header").html("Device Info");
+
+    $("#deviceIp").html(deviceId["ip"]);
+
+    $("#deviceType").html(deviceId["type"]);
+
+    $("#deviceStatus").html(deviceId["status"]);
+
+    if (deviceId["type"] === "ssh")
+    {
+      $("#pingRow").hide();
+
+    } else
+    {
+      $("#sshRow").hide();
+
+      $("#lineChartCpu").hide();
+
+      $("#lineChartDisk").hide();
+
+      $("#lineChartMemory").hide();
+    }
+
+
 
   },
 
-  updatePage : function (deviceData){
+  updatePage: function (devceInfoArray) {
 
-    document.getElementById("rtt1").innerHTML = deviceData["ping.packet.rtt"];
+    const availabilityData =[devceInfoArray[1][0].PERCENTAGE,100-devceInfoArray[1][0].PERCENTAGE];
 
-    document.getElementById("sent").innerHTML = (deviceData["ping.packet.sent"]).split(".")[0];
+    device.availabilityChart(availabilityData);
 
-    document.getElementById("received").innerHTML = (deviceData["ping.packet.rcv"]).split(".")[0];
+    console.log(devceInfoArray[0][0].PING_PACKET_RTT)
 
-    document.getElementById("loss").innerHTML = deviceData["ping.packet.loss"];
+    $("#rtt1").html(devceInfoArray[0][0].PING_PACKET_RTT);
 
-    if(deviceData.hasOwnProperty('disk.percent.used')) {
+    $("#sent").html((devceInfoArray[0][0].PING_PACKET_SENT).toString().split(".")[0]);
 
-      document.getElementById("cpu").innerHTML = deviceData["cpu.percent.total"];
+    $("#received").html((devceInfoArray[0][0].PING_PACKET_RCV).toString().split(".")[0]);
 
-      document.getElementById("memory").innerHTML = deviceData["memory.percent.used"];
+    $("#loss").html(devceInfoArray[0][0].PING_PACKET_LOSS);
 
-      document.getElementById("disk").innerHTML = deviceData["disk.percent.used"];
+    if (devceInfoArray[0][0].hasOwnProperty('DISK_PERCENT_USED')) {
 
-      document.getElementById("rtt").innerHTML = deviceData["ping.packet.rtt"];
+      $("#cpu").html(devceInfoArray[0][0].CPU_PERCENT_TOTAL);
+
+      $("#memory").html(devceInfoArray[0][0].MEMORY_PERCENT_USED);
+
+      $("#disk").html(devceInfoArray[0][0].DISK_PERCENT_USED);
+
+      $("#rtt").html(devceInfoArray[0][0].PING_PACKET_RTT);
+
+      var cpu = devceInfoArray[2].map(obj => obj.METRICVALUE);
+
+      var cpuTimestamps = devceInfoArray[2].map(obj => obj.TIMESTAMP);
+
+      var memory = devceInfoArray[3].map(obj => obj.METRICVALUE);
+
+      var memoryTimestamps = devceInfoArray[3].map(obj => obj.TIMESTAMP);
+
+      var disk = devceInfoArray[4].map(obj => obj.METRICVALUE);
+
+      var diskTimestamps = devceInfoArray[4].map(obj => obj.TIMESTAMP);
+
+      device.lineChart(cpuTimestamps,cpu,"lineChartCpu");
+
+      device.lineChart(memoryTimestamps,memory,"lineChartMemory");
+
+      device.lineChart(diskTimestamps,disk,"lineChartDisk");
 
     }
 
+  },
+
+    availabilityChart: function (availabilityData){
+
+      const pingChartCanvas = $("#pingChart")[0].getContext("2d");
+
+      const pingChart = new Chart(pingChartCanvas, {
+        type: "doughnut",
+        data: {
+          labels: ["Available", "Unavailable"],
+          datasets: [
+            {
+              data: availabilityData,
+              backgroundColor: ["#4CBB17", "#ff0000"],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutoutPercentage: 70,
+          plugins: {
+            datalabels: {
+              formatter: (value, ctx) => {
+                return value + "%";
+              },
+              color: "#fff",
+              font: {
+                weight: "bold"
+              }
+            }
+          }
+        },
+      });
+
+
+  },
+
+  lineChart : function (lables,data,chartName){
+
+    console.log(lables,data)
+    var chartData = {
+      labels: lables,
+      datasets: [{
+        label: chartName,
+        data: data,
+        borderColor: 'blue',
+        fill: false
+      }]
+    };
+
+    let chartOptions = {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    };
+
+    let ctx = document.getElementById(chartName).getContext('2d');
+    let lineChart = new Chart(ctx, {
+      type: 'line',
+      data: chartData,
+      options: chartOptions
+    });
   }
 }

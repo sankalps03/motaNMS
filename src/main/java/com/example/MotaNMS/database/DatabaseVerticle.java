@@ -1,4 +1,4 @@
-package com.example.MotaNMS.Database;
+package com.example.MotaNMS.database;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
@@ -17,21 +17,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.example.MotaNMS.Services.sqlQueries;
+import com.example.MotaNMS.services.SqlQueries;
 
 
-public class databaseVerticle extends AbstractVerticle {
+public class DatabaseVerticle extends AbstractVerticle {
 
-  private static final Logger logger = LoggerFactory.getLogger(databaseVerticle.class);
+  private static final Logger logger = LoggerFactory.getLogger(DatabaseVerticle.class);
 
   EventBus eventBus;
-  connectionPool pool;
+  ConnectionPool pool;
 
   public void start(Promise<Void> startPromise) {
 
     eventBus = getVertx().eventBus();
 
-    pool = new connectionPool();
+    pool = new ConnectionPool();
 
     pool.createConnection();
 
@@ -73,15 +73,15 @@ public class databaseVerticle extends AbstractVerticle {
 
       try {
 
-        // naming and null check
         JsonObject data = (JsonObject) message.body();
 
         Connection connection = pool.getConnection();
 
-        // naming
         PreparedStatement prepared = connection.prepareStatement(data.getString("query"));
 
         prepared.execute();
+
+        prepared.close();
 
 
       } catch (Exception exception) {
@@ -101,7 +101,25 @@ public class databaseVerticle extends AbstractVerticle {
 
         Connection connection = pool.getConnection();
 
-        PreparedStatement prepared = connection.prepareStatement(data.getString("query"));
+        String query =data.getString("query");
+
+        PreparedStatement prepared = connection.prepareStatement(query);
+
+        if (data.containsKey("id")){
+
+          prepared.setInt(1,Integer.valueOf(data.getString("id")));
+
+        }else if((query.equals(SqlQueries.selectAllLatestData())) ||(query.equals(SqlQueries.selectPingLatestData()))){
+
+          prepared.setString(1,data.getString("ip"));
+
+          prepared.setString(2,data.getString("ip"));
+
+        }else if (query.equals(SqlQueries.avaiability()) || query.equals(SqlQueries.cpuLinechart()) || query.equals(SqlQueries.diskLinechart()) || query.equals(SqlQueries.memoryLinechart())){
+
+          prepared.setString(1,data.getString("ip"));
+
+        }
 
         ResultSet resultSet = prepared.executeQuery();
 
@@ -133,7 +151,9 @@ public class databaseVerticle extends AbstractVerticle {
 
         message.reply(result);
 
-        connectionPool.releaseConnection(connection);
+        prepared.close();
+
+        ConnectionPool.releaseConnection(connection);
 
         logger.info("select method run Success");
 
@@ -166,9 +186,11 @@ public class databaseVerticle extends AbstractVerticle {
 
         prepared.execute();
 
-        connectionPool.releaseConnection(connection);
+        ConnectionPool.releaseConnection(connection);
 
         message.reply("in database");
+
+        prepared.close();
 
         logger.info("row operation successful");
 
@@ -199,7 +221,7 @@ public class databaseVerticle extends AbstractVerticle {
 
           dataArray = (JsonArray) insertData;
 
-          query = sqlQueries.insertPolling();
+          query = SqlQueries.insertPolling();
 
         } else {
           data = (JsonObject) message.body();
@@ -245,9 +267,11 @@ public class databaseVerticle extends AbstractVerticle {
 
         }
 
-        connectionPool.releaseConnection(connection);
+        ConnectionPool.releaseConnection(connection);
 
         message.reply("inserted");
+
+        prepared.close();
 
         logger.info("Insert Successful");
 

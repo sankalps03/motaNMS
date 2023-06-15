@@ -4,8 +4,7 @@ var monitor = {
 
     $('#body').html(monitorPage)
 
-    document.getElementById("header").innerHTML = "Monitor";
-
+    $("#header").html("Monitor");
 
     let ajaxData = {
       url: "https://localhost:8080/api/monitor/load",
@@ -52,7 +51,8 @@ var monitor = {
       var row = a.closest("tr")
 
       var deviceId  = {ip: row.find("td:nth-child(2)").text(),
-        type: row.find("td:nth-child(3)").text()};
+        type: row.find("td:nth-child(3)").text(),
+        status: row.find("td:nth-child(4)").text()};
 
       device.onload(deviceId)
 

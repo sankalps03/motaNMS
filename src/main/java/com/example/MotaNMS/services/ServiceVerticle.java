@@ -1,4 +1,4 @@
-package com.example.MotaNMS.Services;
+package com.example.MotaNMS.services;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.CompositeFuture;
@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 
-public class serviceVerticle extends AbstractVerticle {
+public class ServiceVerticle extends AbstractVerticle {
 
-  private static final Logger logger = LoggerFactory.getLogger(serviceVerticle.class);
+  private static final Logger logger = LoggerFactory.getLogger(ServiceVerticle.class);
 
   EventBus eventBus;
 
@@ -25,9 +25,9 @@ public class serviceVerticle extends AbstractVerticle {
 
       eventBus = getVertx().eventBus();
 
-      discovery discovery = new discovery();
+      Discovery discovery = new Discovery();
 
-      monitor monitor = new monitor();
+      Monitor monitor = new Monitor();
 
       discovery.setEventBus(getVertx());
 
@@ -67,11 +67,11 @@ public class serviceVerticle extends AbstractVerticle {
 
     List<JsonArray> dashBoardData = new ArrayList<>();
 
-    CompositeFuture.join(top5DbRequest(sqlQueries.selectTop5Memory()),
-      top5DbRequest(sqlQueries.selectTop5Cpu()),
-      top5DbRequest(sqlQueries.selectTop5Disk()),
-      top5DbRequest(sqlQueries.selectTop5rtt()),
-      top5DbRequest(sqlQueries.deviceCount())).onComplete(handler -> {
+    CompositeFuture.join(top5DbRequest(SqlQueries.selectTop5Memory()),
+      top5DbRequest(SqlQueries.selectTop5Cpu()),
+      top5DbRequest(SqlQueries.selectTop5Disk()),
+      top5DbRequest(SqlQueries.selectTop5rtt()),
+      top5DbRequest(SqlQueries.deviceCount())).onComplete(handler -> {
 
       if (handler.succeeded()) {
 

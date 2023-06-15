@@ -1,6 +1,6 @@
-package com.example.MotaNMS.Services;
+package com.example.MotaNMS.services;
 
-public interface sqlQueries{
+public interface SqlQueries {
 
 
   static String insertDiscovery(){
@@ -14,8 +14,8 @@ public interface sqlQueries{
     return "SELECT id,ipaddress,type,provision FROM DISCOVERY";
   }
 
-  static String selectRunDiscovery(String id){
-    return "SELECT ipaddress,type,credential FROM DISCOVERY WHERE id = '"+id+"'";
+  static String selectRunDiscovery(){
+    return "SELECT ipaddress,type,credential FROM DISCOVERY WHERE id = ?";
   }
 
   static String provision(){
@@ -46,14 +46,14 @@ public interface sqlQueries{
     return "INSERT INTO polling (ipaddress, type, metricType, metricvalue, timestamp) VALUES (?, ?, ?, ?, ?)";
   }
 
-  static String selectAllLatestData(String ip){
+  static String selectAllLatestData(){
 
-    return "SELECT p.METRICTYPE, p.METRICVALUE FROM polling p WHERE p.IPADDRESS = '"+ip+"' AND p.METRICTYPE IN ('ping.packet.sent', 'ping.packet.rcv', 'ping.packet.rtt', 'cpu.percent.total', 'disk.percent.used','memory.percent.used','ping.packet.loss') AND p.TIMESTAMP = (SELECT MAX(TIMESTAMP) FROM polling WHERE IPADDRESS = '"+ip+"' AND METRICTYPE = p.METRICTYPE )";
+    return "SELECT MAX(CASE WHEN METRICTYPE='ping.packet.sent' THEN METRICVALUE END) AS ping_packet_sent,MAX(CASE WHEN METRICTYPE='ping.packet.rcv' THEN METRICVALUE END) AS ping_packet_rcv,MAX(CASE WHEN METRICTYPE='ping.packet.rtt' THEN METRICVALUE END) AS ping_packet_rtt,MAX(CASE WHEN METRICTYPE='cpu.percent.total' THEN METRICVALUE END) AS cpu_percent_total,MAX(CASE WHEN METRICTYPE='disk.percent.used' THEN METRICVALUE END) AS disk_percent_used,MAX(CASE WHEN METRICTYPE='memory.percent.used' THEN METRICVALUE END) AS memory_percent_used,MAX(CASE WHEN METRICTYPE='ping.packet.loss' THEN METRICVALUE END) AS ping_packet_loss FROM polling p WHERE IPADDRESS= ? AND METRICTYPE IN ('ping.packet.sent','ping.packet.rcv','ping.packet.rtt','cpu.percent.total','disk.percent.used','memory.percent.used','ping.packet.loss') AND TIMESTAMP=(SELECT MAX(TIMESTAMP) FROM polling WHERE IPADDRESS= ? AND METRICTYPE=p.METRICTYPE);";
   }
 
-  static String selectPingLatestData(String ip){
+  static String selectPingLatestData(){
 
-    return "SELECT p.METRICTYPE, p.METRICVALUE FROM polling p WHERE p.IPADDRESS = '"+ip+"'AND p.METRICTYPE IN ('ping.packet.sent', 'ping.packet.rcv', 'ping.packet.rtt','ping.packet.loss') AND p.TIMESTAMP = ( SELECT MAX(TIMESTAMP) FROM polling WHERE IPADDRESS = '"+ip+"' AND METRICTYPE = p.METRICTYPE )";
+    return "SELECT MAX(CASE WHEN METRICTYPE='ping.packet.sent' THEN METRICVALUE END) AS ping_packet_sent,MAX(CASE WHEN METRICTYPE='ping.packet.rcv' THEN METRICVALUE END) AS ping_packet_rcv,MAX(CASE WHEN METRICTYPE='ping.packet.rtt' THEN METRICVALUE END) AS ping_packet_rtt,MAX(CASE WHEN METRICTYPE='ping.packet.loss' THEN METRICVALUE END) AS ping_packet_loss FROM polling p WHERE IPADDRESS= ? AND METRICTYPE IN ('ping.packet.sent','ping.packet.rcv','ping.packet.rtt','ping.packet.loss') AND TIMESTAMP=(SELECT MAX(TIMESTAMP) FROM polling WHERE IPADDRESS= ? AND METRICTYPE=p.METRICTYPE);";
   }
 
   static String selectTop5rtt(){
@@ -80,6 +80,26 @@ public interface sqlQueries{
   static String updateMonitorStatus(){
 
     return "UPDATE monitor m SET m.STATUS=CASE WHEN m.IPADDRESS IN (SELECT DISTINCT p.IPADDRESS FROM polling p WHERE p.METRICTYPE='ping.packet.loss' AND p.METRICVALUE < 50 AND p.TIMESTAMP>=NOW() - INTERVAL '5' MINUTE) THEN 'up' ELSE 'down' END;";
+  }
+
+  static String avaiability(){
+
+    return "SELECT (COUNT(*) * 100.0) / (SELECT 24 * 60 / 2) AS percentage FROM polling WHERE metrictype = 'ping.packet.loss' AND ipaddress = ? AND metricvalue < '50' AND timestamp >= NOW() - INTERVAL '24' HOUR;" ;
+  }
+
+  static String cpuLinechart(){
+
+    return "SELECT METRICVALUE AS cpu ,TIMESTAMP FROM polling WHERE METRICTYPE='cpu.percent.total' AND IPADDRESS= ? AND TIMESTAMP>=NOW() - INTERVAL '1' HOUR;";
+  }
+
+  static String memoryLinechart(){
+
+    return "SELECT METRICVALUE AS memory ,TIMESTAMP FROM polling WHERE METRICTYPE='memory.percent.used' AND IPADDRESS= ? AND TIMESTAMP>=NOW() - INTERVAL '1' HOUR;";
+  }
+
+  static String diskLinechart(){
+
+    return "SELECT METRICVALUE AS disk ,TIMESTAMP FROM polling WHERE METRICTYPE='disk.percent.used' AND IPADDRESS= ? AND TIMESTAMP>=NOW() - INTERVAL '1' HOUR;";
   }
 
 

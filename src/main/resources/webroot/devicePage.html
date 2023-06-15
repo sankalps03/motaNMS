@@ -12,6 +12,12 @@
 <body>
 
 <div class="page-content fade-in-up">
+  <div id = "rowInfo" class="row"></div>
+  <div class="grid">
+    <div id ="deviceIp" class="box font-strong"></div>
+    <div id ="deviceType"class="box font-strong"></div>
+    <div id ="deviceStatus"class="box font-strong"></div>
+  </div>
   <div id = "sshRow" class="row">
     <div class="col-lg-3 col-md-6">
       <div class="ibox bg-success color-white widget-stat">
@@ -79,6 +85,39 @@
         </div>
       </div>
     </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-5">
+      <div class="ibox">
+        <div class="ibox-body">
+          <canvas id="pingChart"></canvas>
+          </div>
+        </div>
+      </div>
+    <div class="col-lg-7">
+      <div class="ibox">
+        <div class="ibox-body">
+          <canvas id="lineChartCpu"></canvas>
+        </div>
+      </div>
+    </div>
+    </div>
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="ibox">
+        <div class="ibox-body">
+          <canvas id="lineChartMemory"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="ibox">
+        <div class="ibox-body">
+          <canvas id="lineChartDisk"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
   </div>
 </div>
 

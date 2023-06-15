@@ -1,4 +1,4 @@
-package com.example.MotaNMS.Database;
+package com.example.MotaNMS.database;
 
 
 import org.slf4j.Logger;
@@ -9,9 +9,9 @@ import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 
-public class connectionPool {
+public class ConnectionPool {
 
-  private static final Logger logger = LoggerFactory.getLogger(connectionPool.class);
+  private static final Logger logger = LoggerFactory.getLogger(ConnectionPool.class);
 
   private String URL ="jdbc:h2:~/test";
   private String USER ="sa";
@@ -23,15 +23,15 @@ public class connectionPool {
 
   private final int MAXPOOLSIZE = 5;
 
-  private static connectionPool pool;
+  private static ConnectionPool pool;
 
-  public connectionPool(){}
+  public ConnectionPool(){}
 
-  public static connectionPool getInstance(){
+  public static ConnectionPool getInstance(){
 
     if (pool == null){
 
-      pool = new connectionPool();
+      pool = new ConnectionPool();
     }
 
     return pool;

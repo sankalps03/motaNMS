@@ -4,7 +4,7 @@ var discovery = {
 
     $('#body').html(discoveryPage)
 
-    document.getElementById("header").innerHTML = "Discovery";
+    $("#header").html("Discovery");
 
     var ajaxData = {
       url: "https://localhost:8080/api/discovery/load",

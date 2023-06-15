@@ -1,9 +1,9 @@
 package com.example.MotaNMS;
 
-import com.example.MotaNMS.Database.databaseVerticle;
-import com.example.MotaNMS.Poller.pollingVerticle;
-import com.example.MotaNMS.PublicAPI.publicApiVerticle;
-import com.example.MotaNMS.Services.serviceVerticle;
+import com.example.MotaNMS.database.DatabaseVerticle;
+import com.example.MotaNMS.poller.PollingVerticle;
+import com.example.MotaNMS.publicAPI.PublicApiVerticle;
+import com.example.MotaNMS.services.ServiceVerticle;
 import io.vertx.core.Vertx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ public class Main {
 
       Vertx vertx = Vertx.vertx();
 
-      vertx.deployVerticle(databaseVerticle.class.getName()).onComplete(handler ->{
+      vertx.deployVerticle(DatabaseVerticle.class.getName()).onComplete(handler ->{
 
         if (handler.succeeded()){
 
@@ -31,7 +31,7 @@ public class Main {
         }
       });
 
-      vertx.deployVerticle(publicApiVerticle.class.getName()).onComplete(handler ->{
+      vertx.deployVerticle(PublicApiVerticle.class.getName()).onComplete(handler ->{
 
         if (handler.succeeded()){
 
@@ -44,7 +44,7 @@ public class Main {
         }
       });
 
-      vertx.deployVerticle(serviceVerticle.class.getName()).onComplete(handler ->{
+      vertx.deployVerticle(ServiceVerticle.class.getName()).onComplete(handler ->{
 
         if (handler.succeeded()){
 
@@ -57,7 +57,7 @@ public class Main {
         }
       });
 
-      vertx.deployVerticle(pollingVerticle.class.getName()).onComplete(handler ->{
+      vertx.deployVerticle(PollingVerticle.class.getName()).onComplete(handler ->{
 
         if (handler.succeeded()){
 

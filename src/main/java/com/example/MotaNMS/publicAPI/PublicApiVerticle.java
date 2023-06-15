@@ -1,4 +1,4 @@
-package com.example.MotaNMS.PublicAPI;
+package com.example.MotaNMS.publicAPI;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
@@ -19,11 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class publicApiVerticle extends AbstractVerticle {
+public class PublicApiVerticle extends AbstractVerticle {
 
   private static final int HTTP_PORT = 8080;
 
-  private static final Logger logger = LoggerFactory.getLogger(publicApiVerticle.class);
+  private static final Logger logger = LoggerFactory.getLogger(PublicApiVerticle.class);
 
   EventBus eventBus;
 

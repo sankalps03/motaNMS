@@ -4,3 +4,24 @@ html, body, #avavilityDonut {
   margin: 0;
   padding: 0;
 }
+
+.grid {
+  display: grid;
+  grid-gap: 10px;
+  margin-bottom: 20px;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
+/* Styling */
+.box {
+  background: #ccc;
+  color: #808080;
+  text-align: center;
+  padding: 10px;
+  border-radius: 3px;
+}
+
+body {
+  font-family: -apple-system, sans-serif;
+}

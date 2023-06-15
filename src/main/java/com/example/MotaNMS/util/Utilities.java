@@ -1,4 +1,4 @@
-package com.example.MotaNMS.Util;
+package com.example.MotaNMS.util;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -24,7 +24,7 @@ public class Utilities {
     var dataArray = new JsonArray();
 
     try {
-      process = new ProcessBuilder("src/main/java/com/example/MotaNMS/Plugins/poll.exe",dataEncoder).start();
+      process = new ProcessBuilder("src/main/java/com/example/MotaNMS/plugins/poll.exe",dataEncoder).start();
 
       reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 

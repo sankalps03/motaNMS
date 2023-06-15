@@ -1,4 +1,4 @@
-package com.example.MotaNMS.Poller;
+package com.example.MotaNMS.poller;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -8,15 +8,15 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.example.MotaNMS.Services.sqlQueries;
+import com.example.MotaNMS.services.SqlQueries;
 
-import static com.example.MotaNMS.Util.Utilities.*;
+import static com.example.MotaNMS.util.Utilities.*;
 
-public class pollingVerticle extends AbstractVerticle {
+public class PollingVerticle extends AbstractVerticle {
 
   EventBus eventBus;
 
-  private static final Logger logger = LoggerFactory.getLogger(pollingVerticle.class);
+  private static final Logger logger = LoggerFactory.getLogger(PollingVerticle.class);
 
   public void start(Promise<Void> startPromise){
 
@@ -115,7 +115,7 @@ public class pollingVerticle extends AbstractVerticle {
 
     String address = "getAllSshDevices";
 
-    String query = sqlQueries.selectSshDevices();
+    String query = SqlQueries.selectSshDevices();
 
     getDevices(address,query).onComplete(reslt ->{
 
@@ -139,7 +139,7 @@ public class pollingVerticle extends AbstractVerticle {
 
     String address = "getAllPingDevices";
 
-    String query = sqlQueries.selectPingDevices();
+    String query = SqlQueries.selectPingDevices();
 
 
     getDevices(address,query).onComplete(reslt ->{
@@ -190,7 +190,7 @@ public class pollingVerticle extends AbstractVerticle {
 
         logger.info("Polling Data Inserted Successfully");
 
-        eventBus.send("updateMonitorStatus",new JsonObject().put("query",sqlQueries.updateMonitorStatus()));
+        eventBus.send("updateMonitorStatus",new JsonObject().put("query", SqlQueries.updateMonitorStatus()));
       }else {
 
         logger.error("Polling data insert failed");
