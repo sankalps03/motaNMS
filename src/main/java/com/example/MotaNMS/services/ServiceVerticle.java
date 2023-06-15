@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.ArrayList;
-
+import static com.example.MotaNMS.util.QueryConstants.*;
 
 public class ServiceVerticle extends AbstractVerticle {
 
@@ -67,11 +67,11 @@ public class ServiceVerticle extends AbstractVerticle {
 
     List<JsonArray> dashBoardData = new ArrayList<>();
 
-    CompositeFuture.join(top5DbRequest(SqlQueries.selectTop5Memory()),
-      top5DbRequest(SqlQueries.selectTop5Cpu()),
-      top5DbRequest(SqlQueries.selectTop5Disk()),
-      top5DbRequest(SqlQueries.selectTop5rtt()),
-      top5DbRequest(SqlQueries.deviceCount())).onComplete(handler -> {
+    CompositeFuture.join(top5DbRequest(TOP_5_MEMORY_QUERY),
+      top5DbRequest(TOP_5_CPU_QUERY),
+      top5DbRequest(TOP_5_DISK_QUERY),
+      top5DbRequest(TOP_5_RTT_QUERY),
+      top5DbRequest(DEVICE_COUNT_QUERY)).onComplete(handler -> {
 
       if (handler.succeeded()) {
 

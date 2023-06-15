@@ -1,4 +1,4 @@
 package com.example.MotaNMS.util;
 
-public class Constants {
+public class GeneralConstnts {
 }

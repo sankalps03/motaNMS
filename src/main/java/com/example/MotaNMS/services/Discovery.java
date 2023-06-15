@@ -7,7 +7,8 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static com.example.MotaNMS.util.Utilities.runPluginPolling;
+import static com.example.MotaNMS.util.Utilities.*;
+import static com.example.MotaNMS.util.QueryConstants.*;
 
 
 public class Discovery {
@@ -28,7 +29,7 @@ public class Discovery {
 
     JsonObject addData = (JsonObject) message.body();
 
-    String query = SqlQueries.insertDiscovery();
+    String query = DISCOVERY_INSERT_QUERY;
 
     JsonObject credentials = new JsonObject();
 
@@ -88,7 +89,7 @@ public class Discovery {
 
     JsonObject deleteData = (JsonObject) message.body();
 
-    String query = SqlQueries.deleteDiscovery();
+    String query = DISCOVERY_DELETE_QUERY;
 
     String id = deleteData.getString("id");
 
@@ -128,7 +129,7 @@ public class Discovery {
 
       System.out.println(id);
 
-      eventBus.request("getCredentialsFromDiscovery", new JsonObject().put("query", SqlQueries.selectRunDiscovery()).put("id",id),
+      eventBus.request("getCredentialsFromDiscovery", new JsonObject().put("query", DISCOVERY_RUN_SELECT_QUERY).put("id",id),
         reply -> {
 
           if (reply.succeeded()) {
@@ -168,7 +169,7 @@ public class Discovery {
 
               if(handler.succeeded()){
 
-                eventBus.send("setProvisionTrue",new JsonObject().put("id",id).put("query", SqlQueries.setProvision()));
+                eventBus.send("setProvisionTrue",new JsonObject().put("id",id).put("query", SET_PROVISION_TRUE_QUERY));
 
                 message.reply("success");
 
@@ -200,7 +201,7 @@ public class Discovery {
 
     System.out.println(id);
 
-    eventBus.request("addToMonitor",new JsonObject().put("query", SqlQueries.provision()).put("id",id),
+    eventBus.request("addToMonitor",new JsonObject().put("query", PROVISION_QUERY).put("id",id),
       reply ->{
 
       if(reply.succeeded()){
@@ -224,7 +225,7 @@ public class Discovery {
   protected void load(Message<Object> message) {
     try {
 
-      String query = SqlQueries.selectDiscovery();
+      String query = DISCOVERY_SELECT_QUERY;
 
       eventBus.request("loadDiscovery", new JsonObject().put("table", "discovery").put("query", query), reply -> {
 

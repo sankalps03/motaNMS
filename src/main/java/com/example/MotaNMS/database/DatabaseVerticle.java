@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.example.MotaNMS.services.SqlQueries;
+import static com.example.MotaNMS.util.QueryConstants.*;
 
 
 public class DatabaseVerticle extends AbstractVerticle {
@@ -109,13 +109,13 @@ public class DatabaseVerticle extends AbstractVerticle {
 
           prepared.setInt(1,Integer.valueOf(data.getString("id")));
 
-        }else if((query.equals(SqlQueries.selectAllLatestData())) ||(query.equals(SqlQueries.selectPingLatestData()))){
+        }else if((query.equals(SSH_LATEST_DATA_QUERY)) ||(query.equals(PING_LATEST_DATA_QUERY))){
 
           prepared.setString(1,data.getString("ip"));
 
           prepared.setString(2,data.getString("ip"));
 
-        }else if (query.equals(SqlQueries.avaiability()) || query.equals(SqlQueries.cpuLinechart()) || query.equals(SqlQueries.diskLinechart()) || query.equals(SqlQueries.memoryLinechart())){
+        }else if (query.equals(LAST_24_HOUR_AVAILABILITY_QUERY) || query.equals(LAST_1_HOUR_CPU_USED_QUERY) || query.equals(LAST_1_HOUR_DISK_USED_QUERY) || query.equals(LAST_1_HOUR_MEMORY_USED_QUERY)){
 
           prepared.setString(1,data.getString("ip"));
 
@@ -221,7 +221,7 @@ public class DatabaseVerticle extends AbstractVerticle {
 
           dataArray = (JsonArray) insertData;
 
-          query = SqlQueries.insertPolling();
+          query = POLLING_INSERT_QUERY;
 
         } else {
           data = (JsonObject) message.body();

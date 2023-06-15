@@ -8,7 +8,8 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.example.MotaNMS.services.SqlQueries;
+
+import static com.example.MotaNMS.util.QueryConstants.*;
 
 import static com.example.MotaNMS.util.Utilities.*;
 
@@ -115,7 +116,7 @@ public class PollingVerticle extends AbstractVerticle {
 
     String address = "getAllSshDevices";
 
-    String query = SqlQueries.selectSshDevices();
+    String query = SELECT_SSH_DEVICES_QUERY;
 
     getDevices(address,query).onComplete(reslt ->{
 
@@ -139,8 +140,7 @@ public class PollingVerticle extends AbstractVerticle {
 
     String address = "getAllPingDevices";
 
-    String query = SqlQueries.selectPingDevices();
-
+    String query = SELECT_PING_DEVICES_QUERY;
 
     getDevices(address,query).onComplete(reslt ->{
 
@@ -190,7 +190,7 @@ public class PollingVerticle extends AbstractVerticle {
 
         logger.info("Polling Data Inserted Successfully");
 
-        eventBus.send("updateMonitorStatus",new JsonObject().put("query", SqlQueries.updateMonitorStatus()));
+        eventBus.send("updateMonitorStatus",new JsonObject().put("query", UPDATE_AVAILABILITY_STATUS_QUERY));
       }else {
 
         logger.error("Polling data insert failed");
