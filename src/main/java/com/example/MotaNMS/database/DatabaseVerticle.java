@@ -46,6 +46,8 @@ public class DatabaseVerticle extends AbstractVerticle {
 
       eventBus.localConsumer(SELECT).handler(this::select);
 
+      eventBus.localConsumer(UPDATE).handler(this::update);
+
       startPromise.complete();
     }
     catch (Exception exception)
