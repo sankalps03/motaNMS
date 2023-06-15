@@ -25,15 +25,12 @@ public class DatabaseVerticle extends AbstractVerticle {
   private static final Logger logger = LoggerFactory.getLogger(DatabaseVerticle.class);
 
   EventBus eventBus;
-  ConnectionPool pool;
 
   public void start(Promise<Void> startPromise) {
 
     eventBus = getVertx().eventBus();
 
-    pool = new ConnectionPool();
-
-    pool.createConnection();
+    ConnectionPool.getInstance().createConnection();
 
     eventBus.localConsumer("addToDiscovery").handler(this::insert);
 
@@ -75,13 +72,15 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         JsonObject data = (JsonObject) message.body();
 
-        Connection connection = pool.getConnection();
+        Connection connection = ConnectionPool.getInstance().getConnection();
 
         PreparedStatement prepared = connection.prepareStatement(data.getString("query"));
 
         prepared.execute();
 
         prepared.close();
+
+        ConnectionPool.getInstance().releaseConnection(connection);
 
 
       } catch (Exception exception) {
@@ -99,7 +98,7 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         JsonObject data = (JsonObject) message.body();
 
-        Connection connection = pool.getConnection();
+        Connection connection = ConnectionPool.getInstance().getConnection();
 
         String query =data.getString("query");
 
@@ -153,9 +152,9 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         prepared.close();
 
-        ConnectionPool.releaseConnection(connection);
+        ConnectionPool.getInstance().releaseConnection(connection);
 
-        logger.info("select method run Success");
+        logger.info("select method run Success " + query);
 
 
       } catch (Exception exception) {
@@ -178,7 +177,7 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         int id = Integer.valueOf(data.getString("id"));
 
-        Connection connection = pool.getConnection();
+        Connection connection = ConnectionPool.getInstance().getConnection();
 
         PreparedStatement prepared = connection.prepareStatement(data.getString("query"));
 
@@ -186,7 +185,7 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         prepared.execute();
 
-        ConnectionPool.releaseConnection(connection);
+        ConnectionPool.getInstance().releaseConnection(connection);
 
         message.reply("in database");
 
@@ -229,7 +228,7 @@ public class DatabaseVerticle extends AbstractVerticle {
           query = data.getString("query");
         }
 
-        Connection connection = pool.getConnection();
+        Connection connection = ConnectionPool.getInstance().getConnection();
 
         PreparedStatement prepared = connection.prepareStatement(query);
 
@@ -267,7 +266,7 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         }
 
-        ConnectionPool.releaseConnection(connection);
+        ConnectionPool.getInstance().releaseConnection(connection);
 
         message.reply("inserted");
 

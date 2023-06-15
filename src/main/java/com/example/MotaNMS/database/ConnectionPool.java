@@ -3,106 +3,100 @@ package com.example.MotaNMS.database;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import static com.example.MotaNMS.util.GeneralConstants.*;
 
 public class ConnectionPool {
 
-  private static final Logger logger = LoggerFactory.getLogger(ConnectionPool.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionPool.class);
 
-  private String URL ="jdbc:h2:~/test";
-  private String USER ="sa";
-  private String PASSWORD ="";
-
-  private static ArrayBlockingQueue<Connection> connectionPool;
-
-  private static ArrayList< Connection > activeConnection = new ArrayList<>();
-
-  private final int MAXPOOLSIZE = 5;
+  private static ArrayBlockingQueue<Connection> connections;
 
   private static ConnectionPool pool;
 
-  public ConnectionPool(){}
+  private ConnectionPool() {
+  }
 
-  public static ConnectionPool getInstance(){
+  public static ConnectionPool getInstance() {
 
-    if (pool == null){
+    if (pool == null) {
 
       pool = new ConnectionPool();
+
     }
 
     return pool;
   }
 
-  protected void createConnection(){
+  protected void createConnection() {
 
     Connection connection;
 
-    connectionPool = new ArrayBlockingQueue<>(MAXPOOLSIZE);
+    connections = new ArrayBlockingQueue<>(MAX_POOL_SIZE);
 
     try {
 
-      for (int i =0 ; i< MAXPOOLSIZE; i++){
+      for (int i = 0; i < MAX_POOL_SIZE; i++) {
 
-      connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        connection = DriverManager.getConnection(URL, USER, PASSWORD);
 
-      connectionPool.add(connection);
+        connections.add(connection);
 
       }
 
+    } catch (Exception exception) {
 
-    }catch (Exception exception){
-
-      logger.error(exception.getMessage());
-
+      LOGGER.error(exception.getMessage(), exception.getCause());
 
     }
 
   }
 
-  protected Connection getConnection ()
-  {
+  protected Connection getConnection() {
 
-    Connection connection = connectionPool.poll();
+    Connection connection = null;
+    try {
 
-    activeConnection.add(connection);
+      connection = connections.take();
+
+    } catch (Exception exception) {
+
+      LOGGER.error(exception.getMessage(), exception.getCause());
+
+    }
 
     return connection;
   }
 
-  public static void releaseConnection (Connection connection)
-  {
+  protected void releaseConnection(Connection connection) {
 
-    try
-    {
-      connectionPool.put(connection);
+    try {
+      connections.put(connection);
 
-      activeConnection.remove(connection);
+    } catch (Exception exception) {
 
-    }
-    catch ( InterruptedException exception )
-    {
-      exception.printStackTrace();
+      LOGGER.error(exception.getMessage(), exception.getCause());
+
     }
 
   }
 
-  private void closeAllConnections()
-  {
-    int size = activeConnection.size();
+  private void closeAllConnections() {
 
-    for(int index=0;index<size;index++)
+    for (int index = 0; index < connections.size(); index++)
     {
       try
       {
-        activeConnection.get(index).close();
+        connections.take().close();
+
       }
-      catch ( Exception exception )
+      catch (Exception exception)
       {
-        exception.printStackTrace();
+        LOGGER.error(exception.getMessage(), exception.getCause());
+
       }
     }
   }
