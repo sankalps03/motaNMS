@@ -2,6 +2,8 @@ package com.example.MotaNMS.util;
 
 public class GeneralConstants {
 
+  public static final int HTTP_PORT = 8080;
+
   public static final String URL ="jdbc:h2:~/test";
 
   public static final String USER ="sa";
