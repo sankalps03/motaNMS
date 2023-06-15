@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.ArrayList;
+import static com.example.MotaNMS.util.GeneralConstants.*;
 import static com.example.MotaNMS.util.QueryConstants.*;
 
 public class ServiceVerticle extends AbstractVerticle {
@@ -95,7 +96,7 @@ public class ServiceVerticle extends AbstractVerticle {
 
     Promise<JsonArray> promise = Promise.promise();
 
-    eventBus.request("toprtt", new JsonObject().put("query", query), messageAsyncResult -> {
+    eventBus.request(SELECT, new JsonObject().put("query", query), messageAsyncResult -> {
 
       if (messageAsyncResult.succeeded()) {
 

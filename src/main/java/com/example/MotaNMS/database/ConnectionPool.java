@@ -20,9 +20,11 @@ public class ConnectionPool {
   private ConnectionPool() {
   }
 
-  public static ConnectionPool getInstance() {
+  public static ConnectionPool getInstance()
+  {
 
-    if (pool == null) {
+    if (pool == null)
+    {
 
       pool = new ConnectionPool();
 
@@ -31,13 +33,17 @@ public class ConnectionPool {
     return pool;
   }
 
-  protected void createConnection() {
+  protected boolean createConnection()
+  {
+
+    boolean poolCreated = true;
 
     Connection connection;
 
     connections = new ArrayBlockingQueue<>(MAX_POOL_SIZE);
 
-    try {
+    try
+    {
 
       for (int i = 0; i < MAX_POOL_SIZE; i++) {
 
@@ -47,18 +53,23 @@ public class ConnectionPool {
 
       }
 
-    } catch (Exception exception) {
+    } catch (Exception exception)
+    {
+
+      poolCreated = false;
 
       LOGGER.error(exception.getMessage(), exception.getCause());
 
     }
 
+    return poolCreated;
   }
 
-  protected Connection getConnection() {
-
+  protected Connection getConnection()
+  {
     Connection connection = null;
-    try {
+    try
+    {
 
       connection = connections.take();
 
@@ -71,9 +82,11 @@ public class ConnectionPool {
     return connection;
   }
 
-  protected void releaseConnection(Connection connection) {
+  protected void releaseConnection(Connection connection)
+  {
 
-    try {
+    try
+    {
       connections.put(connection);
 
     } catch (Exception exception) {
@@ -84,7 +97,8 @@ public class ConnectionPool {
 
   }
 
-  private void closeAllConnections() {
+  private void closeAllConnections()
+  {
 
     for (int index = 0; index < connections.size(); index++)
     {

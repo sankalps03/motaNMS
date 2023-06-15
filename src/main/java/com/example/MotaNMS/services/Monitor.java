@@ -11,6 +11,7 @@ import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static com.example.MotaNMS.util.QueryConstants.*;
+import static com.example.MotaNMS.util.GeneralConstants.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ public class Monitor {
 
       String query = MONITOR_SELECT_QUERY;
 
-      eventBus.request("loadMonitor", new JsonObject().put("table", "monitor").put("query", query), reply -> {
+      eventBus.request(SELECT, new JsonObject().put("table", "monitor").put("query", query), reply -> {
 
         if (reply.succeeded())
         {
@@ -70,7 +71,7 @@ public class Monitor {
 
     if (!id.isEmpty()) {
 
-      eventBus.request("deleteFromMonitor", new JsonObject().put("id", id).put("query", query), reply -> {
+      eventBus.request(ROW_ID_OPERATION, new JsonObject().put("id", id).put("query", query), reply -> {
 
         if (reply.succeeded()) {
 
@@ -159,7 +160,7 @@ public class Monitor {
 
     Promise<JsonArray> promise = Promise.promise();
 
-    eventBus.request("toprtt", device, messageAsyncResult -> {
+    eventBus.request(SELECT, device, messageAsyncResult -> {
 
       if (messageAsyncResult.succeeded()) {
 

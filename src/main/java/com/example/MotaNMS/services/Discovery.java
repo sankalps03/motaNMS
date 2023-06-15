@@ -7,6 +7,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.example.MotaNMS.util.GeneralConstants.*;
 import static com.example.MotaNMS.util.Utilities.*;
 import static com.example.MotaNMS.util.QueryConstants.*;
 
@@ -62,7 +63,7 @@ public class Discovery {
         .put("query", query);
 
 
-      eventBus.request("addToDiscovery", checkedData, reply -> {
+      eventBus.request(INSERT, checkedData, reply -> {
 
         if (reply.succeeded()) {
 
@@ -95,7 +96,7 @@ public class Discovery {
 
     if (!id.isEmpty()) {
 
-      eventBus.request("deleteFromDiscovery", new JsonObject().put("id", id).put("query", query), reply -> {
+      eventBus.request(ROW_ID_OPERATION, new JsonObject().put("id", id).put("query", query), reply -> {
 
         if (reply.succeeded()) {
 
@@ -129,7 +130,7 @@ public class Discovery {
 
       System.out.println(id);
 
-      eventBus.request("getCredentialsFromDiscovery", new JsonObject().put("query", DISCOVERY_RUN_SELECT_QUERY).put("id",id),
+      eventBus.request(SELECT, new JsonObject().put("query", DISCOVERY_RUN_SELECT_QUERY).put("id",id),
         reply -> {
 
           if (reply.succeeded()) {
@@ -169,7 +170,7 @@ public class Discovery {
 
               if(handler.succeeded()){
 
-                eventBus.send("setProvisionTrue",new JsonObject().put("id",id).put("query", SET_PROVISION_TRUE_QUERY));
+                eventBus.send(ROW_ID_OPERATION,new JsonObject().put("id",id).put("query", SET_PROVISION_TRUE_QUERY));
 
                 message.reply("success");
 
@@ -201,7 +202,7 @@ public class Discovery {
 
     System.out.println(id);
 
-    eventBus.request("addToMonitor",new JsonObject().put("query", PROVISION_QUERY).put("id",id),
+    eventBus.request(ROW_ID_OPERATION,new JsonObject().put("query", PROVISION_QUERY).put("id",id),
       reply ->{
 
       if(reply.succeeded()){
@@ -227,7 +228,7 @@ public class Discovery {
 
       String query = DISCOVERY_SELECT_QUERY;
 
-      eventBus.request("loadDiscovery", new JsonObject().put("table", "discovery").put("query", query), reply -> {
+      eventBus.request(SELECT, new JsonObject().put("table", "discovery").put("query", query), reply -> {
 
         if (reply.succeeded()) {
           String data = reply.result().body().toString();

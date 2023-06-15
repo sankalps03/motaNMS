@@ -8,280 +8,444 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.MotaNMS.util.GeneralConstants.*;
 import static com.example.MotaNMS.util.QueryConstants.*;
 
 
 public class DatabaseVerticle extends AbstractVerticle {
 
-  private static final Logger logger = LoggerFactory.getLogger(DatabaseVerticle.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseVerticle.class);
 
   EventBus eventBus;
 
-  public void start(Promise<Void> startPromise) {
+  public void start(Promise<Void> startPromise)
+  {
 
-    eventBus = getVertx().eventBus();
+    try
+    {
+      eventBus = getVertx().eventBus();
 
-    ConnectionPool.getInstance().createConnection();
+      boolean poolCreated = ConnectionPool.getInstance().createConnection();
 
-    eventBus.localConsumer("addToDiscovery").handler(this::insert);
+      if (!poolCreated)
+      {
 
-    eventBus.localConsumer("insertInPolling").handler(this::insert);
+        throw new Exception("Connection pool creation failed");
 
-    eventBus.localConsumer("deleteFromDiscovery").handler(this::rowIdOperation);
+      }
 
-    eventBus.localConsumer("deleteFromMonitor").handler(this::rowIdOperation);
+      eventBus.localConsumer(INSERT).handler(this::insert);
 
-    eventBus.localConsumer("loadDiscovery").handler(this::select);
+      eventBus.localConsumer(ROW_ID_OPERATION).handler(this::rowIdOperation);
 
-    eventBus.localConsumer("loadMonitor").handler(this::select);
+      eventBus.localConsumer(SELECT).handler(this::select);
 
-    eventBus.localConsumer("getAllSshDevices").handler(this::select);
+      startPromise.complete();
+    }
+    catch (Exception exception)
+    {
 
-    eventBus.localConsumer("getAllPingDevices").handler(this::select);
+      startPromise.fail(exception.getCause());
 
-    eventBus.localConsumer("getCredentialsFromDiscovery").handler(this::select);
+      LOGGER.error(exception.getMessage(),exception.getCause());
 
-    eventBus.localConsumer("addToMonitor").handler(this::rowIdOperation);
-
-    eventBus.localConsumer("setProvisionTrue").handler(this::rowIdOperation);
-
-    eventBus.localConsumer("deviceDataFromDB").handler(this::select);
-
-    eventBus.localConsumer("toprtt").handler(this::select);
-
-    eventBus.localConsumer("updateMonitorStatus").handler(this::update);
-
-
-    startPromise.complete();
+    }
   }
 
-  private void update(Message<Object> message) {
+  private void update(Message<Object> message)
+  {
 
-    vertx.executeBlocking(selectOperation -> {
+    vertx.executeBlocking(selectOperation ->
+    {
 
-      try {
+      PreparedStatement preparedUpdateStatement = null;
 
-        JsonObject data = (JsonObject) message.body();
+      Connection connection = null;
 
-        Connection connection = ConnectionPool.getInstance().getConnection();
+      try
+      {
 
-        PreparedStatement prepared = connection.prepareStatement(data.getString("query"));
+        if (message.body() == null)
+        {
 
-        prepared.execute();
+          throw new Exception("Null message received in update method");
 
-        prepared.close();
+        }
+
+        JsonObject executionData = (JsonObject) message.body();
+
+        String query = executionData.getString("query");
+
+        connection = ConnectionPool.getInstance().getConnection();
+
+        if (connection.isClosed())
+        {
+
+          throw new Exception("Database connection is closed: " + query );
+
+        }
+
+        preparedUpdateStatement = connection.prepareStatement(query);
+
+        if (preparedUpdateStatement == null){
+
+          throw  new Exception("Prepared Statement is null");
+        }
+
+        preparedUpdateStatement.execute();
+
+        message.reply("Execution completed:" + query);
+
+        LOGGER.debug("Execution completed:" + query);
+
+      }
+      catch (Exception exception)
+      {
+
+        message.fail(2,exception.getMessage());
+
+        LOGGER.error(exception.getMessage(),exception.getCause());
+      }
+      finally
+      {
+
+        try
+        {
+          if (preparedUpdateStatement != null) {
+
+            preparedUpdateStatement.close();
+
+          }
+        }
+        catch (Exception exception) {
+
+          LOGGER.error(exception.getMessage(),exception.getCause());
+
+        }
 
         ConnectionPool.getInstance().releaseConnection(connection);
 
-
-      } catch (Exception exception) {
-
-        logger.error(exception.getMessage());
       }
     });
   }
 
-  private void select(Message message) {
+  private void select(Message<Object> message)
+  {
 
-    vertx.executeBlocking(selectOperation -> {
+    vertx.executeBlocking(selectOperation ->
+    {
 
-      try {
+      PreparedStatement preparedSelectStatement = null;
 
-        JsonObject data = (JsonObject) message.body();
+      Connection connection = null;
 
-        Connection connection = ConnectionPool.getInstance().getConnection();
+      try
+      {
+        if (message.body() == null)
+        {
 
-        String query =data.getString("query");
-
-        PreparedStatement prepared = connection.prepareStatement(query);
-
-        if (data.containsKey("id")){
-
-          prepared.setInt(1,Integer.valueOf(data.getString("id")));
-
-        }else if((query.equals(SSH_LATEST_DATA_QUERY)) ||(query.equals(PING_LATEST_DATA_QUERY))){
-
-          prepared.setString(1,data.getString("ip"));
-
-          prepared.setString(2,data.getString("ip"));
-
-        }else if (query.equals(LAST_24_HOUR_AVAILABILITY_QUERY) || query.equals(LAST_1_HOUR_CPU_USED_QUERY) || query.equals(LAST_1_HOUR_DISK_USED_QUERY) || query.equals(LAST_1_HOUR_MEMORY_USED_QUERY)){
-
-          prepared.setString(1,data.getString("ip"));
+          throw new Exception("Null message received in update method");
 
         }
 
-        ResultSet resultSet = prepared.executeQuery();
-
-        ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-
-        List<String> columns = new ArrayList<>(resultSetMetaData.getColumnCount());
-
-        for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
-
-          columns.add(resultSetMetaData.getColumnName(i));
-
-        }
 
         List<Map<String, String>> resultData = new ArrayList<>();
 
-        while (resultSet.next()) {
+        JsonObject executionData = (JsonObject) message.body();
 
-          Map<String, String> row = new HashMap<>(columns.size());
+        String query = executionData.getString("query");
 
-          for (String col : columns) {
+        connection = ConnectionPool.getInstance().getConnection();
 
-            row.put(col, resultSet.getString(col));
+        if (connection.isClosed())
+        {
 
-          }
-          resultData.add(row);
+          throw new Exception("Database connection is closed: " + query );
+
         }
 
-        JsonArray result = new JsonArray(resultData);
+        preparedSelectStatement = connection.prepareStatement(query);
 
-        message.reply(result);
+        if (preparedSelectStatement == null){
 
-        prepared.close();
+          throw  new Exception("Prepared Statement is null");
+        }
 
-        ConnectionPool.getInstance().releaseConnection(connection);
+        if (executionData.containsKey("id"))
+        {
 
-        logger.info("select method run Success " + query);
+          preparedSelectStatement.setInt(1,Integer.parseInt(executionData.getString("id")));
 
+        }
+        else if((query.equals(SSH_LATEST_DATA_QUERY)) ||(query.equals(PING_LATEST_DATA_QUERY)))
+        {
 
-      } catch (Exception exception) {
+          preparedSelectStatement.setString(1, executionData.getString("ip"));
+
+          preparedSelectStatement.setString(2, executionData.getString("ip"));
+
+        }
+        else if (query.equals(LAST_24_HOUR_AVAILABILITY_QUERY) || query.equals(LAST_1_HOUR_CPU_USED_QUERY) || query.equals(LAST_1_HOUR_DISK_USED_QUERY) || query.equals(LAST_1_HOUR_MEMORY_USED_QUERY))
+        {
+
+          preparedSelectStatement.setString(1, executionData.getString("ip"));
+
+        }
+
+        ResultSet resultSet = preparedSelectStatement.executeQuery();
+
+        ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+
+        while (resultSet.next())
+        {
+          Map<String, String> tableData = new HashMap<>(resultSetMetaData.getColumnCount());
+
+          for (int column = 1; column <= resultSetMetaData.getColumnCount(); column++)
+          {
+            String columnName = resultSetMetaData.getColumnName(column);
+
+            tableData.put(columnName, resultSet.getString(columnName));
+          }
+          resultData.add(tableData);
+        }
+
+        JsonArray selectResult = new JsonArray(resultData);
+
+        message.reply(selectResult);
+
+        LOGGER.debug("Execution completed:" + query);
+
+      }
+      catch (Exception exception)
+      {
 
         message.fail(2, exception.getMessage());
 
-        logger.error(exception.getMessage());
+        LOGGER.error(exception.getMessage(),exception.getCause());
       }
-    }, false);
+      finally
+      {
 
-  }
+        try
+        {
+          if (preparedSelectStatement != null)
+          {
+            preparedSelectStatement.close();
+          }
+        }
+        catch (Exception exception) {
 
-  private void rowIdOperation(Message<Object> message) {
+          LOGGER.error(exception.getMessage(),exception.getCause());
 
-    vertx.executeBlocking(rowOperation -> {
-
-      try {
-
-        JsonObject data = (JsonObject) message.body();
-
-        int id = Integer.valueOf(data.getString("id"));
-
-        Connection connection = ConnectionPool.getInstance().getConnection();
-
-        PreparedStatement prepared = connection.prepareStatement(data.getString("query"));
-
-        prepared.setInt(1, id);
-
-        prepared.execute();
-
+        }
         ConnectionPool.getInstance().releaseConnection(connection);
+      }
+    }, false);
 
-        message.reply("in database");
+  }
 
-        prepared.close();
+  private void rowIdOperation(Message<Object> message)
+  {
 
-        logger.info("row operation successful");
+    vertx.executeBlocking(rowOperation ->
+    {
+      PreparedStatement preparedRowOperationStatement = null;
 
-      } catch (Exception exception) {
+      Connection connection = null;
 
-        message.fail(2, "operation failed");
+      try
+      {
 
-        logger.error(exception.getMessage());
+        if (message.body() == null)
+        {
 
+          throw new Exception("Null message received in update method");
+
+        }
+
+        JsonObject executionData = (JsonObject) message.body();
+
+        String query = executionData.getString("query");
+
+        int id = Integer.parseInt(executionData.getString("id"));
+
+        connection = ConnectionPool.getInstance().getConnection();
+
+        if (connection.isClosed())
+        {
+
+          throw new Exception("Database connection is closed: " + query );
+
+        }
+
+        preparedRowOperationStatement = connection.prepareStatement(query);
+
+        if (preparedRowOperationStatement == null){
+
+          throw  new Exception("Prepared Statement is null");
+        }
+
+        preparedRowOperationStatement.setInt(1, id);
+
+        preparedRowOperationStatement.execute();
+
+        message.reply("Execution completed: "+query);
+
+        LOGGER.debug("Execution Completed:" + query);
+
+      }
+      catch (Exception exception)
+      {
+
+        message.fail(2, exception.getMessage());
+
+        LOGGER.error(exception.getMessage(),exception.getCause());
+
+      }
+      finally
+      {
+
+        try
+        {
+          if (preparedRowOperationStatement != null)
+          {
+            preparedRowOperationStatement.close();
+          }
+        }
+        catch (Exception exception) {
+
+          LOGGER.error(exception.getMessage(),exception.getCause());
+
+        }
+        ConnectionPool.getInstance().releaseConnection(connection);
       }
     }, false);
   }
 
-  private void insert(Message<Object> message) {
+  private void insert(Message<Object> message)
+  {
 
-    vertx.executeBlocking(indertOperaton -> {
-      try {
+    vertx.executeBlocking(indertOperaton ->
+    {
+      PreparedStatement preparedInsertStatement = null;
+
+      Connection connection = null;
+      try
+      {
+        if (message.body() == null)
+        {
+
+          throw new Exception("Null message received in update method");
+
+        }
 
         Object insertData = message.body();
 
         String query;
 
-        JsonObject data = null;
+        JsonObject jsonInsertData = null;
 
-        JsonArray dataArray = null;
+        JsonArray insertDataArray = null;
 
-        if (insertData instanceof JsonArray) {
+        if (insertData instanceof JsonArray)
+        {
 
-          dataArray = (JsonArray) insertData;
+          insertDataArray = (JsonArray) insertData;
 
           query = POLLING_INSERT_QUERY;
 
-        } else {
-          data = (JsonObject) message.body();
+        }
+        else
+        {
+          jsonInsertData = (JsonObject) message.body();
 
-          query = data.getString("query");
+          query = jsonInsertData.getString("query");
         }
 
-        Connection connection = ConnectionPool.getInstance().getConnection();
+        connection = ConnectionPool.getInstance().getConnection();
 
-        PreparedStatement prepared = connection.prepareStatement(query);
+        if (connection.isClosed())
+        {
+
+          throw new Exception("Database connection is closed: " + query );
+
+        }
+
+        preparedInsertStatement = connection.prepareStatement(query);
+
+        if (preparedInsertStatement == null){
+
+          throw  new Exception("Prepared Statement is null");
+        }
 
         if (insertData instanceof JsonArray) {
 
-          for (Object JsonData : dataArray) {
+          for (Object jsonObjectData : insertDataArray) {
 
-            data = (JsonObject) JsonData;
+            jsonInsertData = (JsonObject) jsonObjectData;
 
-            prepared.setString(1, data.getString("ip"));
+            preparedInsertStatement.setString(1, jsonInsertData.getString("ip"));
 
-            prepared.setString(2, data.getString("type"));
+            preparedInsertStatement.setString(2, jsonInsertData.getString("type"));
 
-            prepared.setString(3, data.getString("metricType"));
+            preparedInsertStatement.setString(3, jsonInsertData.getString("metricType"));
 
-            prepared.setString(4, data.getString("metricValue"));
+            preparedInsertStatement.setString(4, jsonInsertData.getString("metricValue"));
 
-            prepared.setString(5, data.getString("timestamp"));
+            preparedInsertStatement.setString(5, jsonInsertData.getString("timestamp"));
 
-            prepared.addBatch();
+            preparedInsertStatement.addBatch();
 
           }
 
-          prepared.executeBatch();
+          preparedInsertStatement.executeBatch();
 
         } else {
 
-          prepared.setString(1, data.getString("ip"));
+          preparedInsertStatement.setString(1, jsonInsertData.getString("ip"));
 
-          prepared.setString(2, data.getString("type"));
+          preparedInsertStatement.setString(2, jsonInsertData.getString("type"));
 
-          prepared.setString(3, data.getJsonObject("credentials").toString());
+          preparedInsertStatement.setString(3, jsonInsertData.getJsonObject("credentials").toString());
 
-          prepared.execute();
+          preparedInsertStatement.execute();
 
         }
 
-        ConnectionPool.getInstance().releaseConnection(connection);
+        message.reply("Execution Completed: "+ query);
 
-        message.reply("inserted");
-
-        prepared.close();
-
-        logger.info("Insert Successful");
+        LOGGER.debug("Execution Completed: "+ query);
 
       } catch (Exception exception) {
 
-        message.fail(2, "insert failed");
+        message.fail(2, exception.getMessage());
 
-        logger.error(exception.getMessage());
+        LOGGER.error(exception.getMessage(),exception.getCause());
+      }
+      finally
+      {
+
+        try
+        {
+          if (preparedInsertStatement != null)
+          {
+            preparedInsertStatement.close();
+          }
+        }
+        catch (Exception exception) {
+
+          LOGGER.error(exception.getMessage(),exception.getCause());
+
+        }
+        ConnectionPool.getInstance().releaseConnection(connection);
       }
     }, false);
 
   }
-
 }

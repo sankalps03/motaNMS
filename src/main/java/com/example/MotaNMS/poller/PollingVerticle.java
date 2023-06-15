@@ -8,11 +8,9 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import static com.example.MotaNMS.util.GeneralConstants.*;
 import static com.example.MotaNMS.util.QueryConstants.*;
-
 import static com.example.MotaNMS.util.Utilities.*;
-
 public class PollingVerticle extends AbstractVerticle {
 
   EventBus eventBus;
@@ -114,7 +112,7 @@ public class PollingVerticle extends AbstractVerticle {
 
     Promise<String> promise = Promise.promise();
 
-    String address = "getAllSshDevices";
+    String address = SELECT;
 
     String query = SELECT_SSH_DEVICES_QUERY;
 
@@ -138,7 +136,7 @@ public class PollingVerticle extends AbstractVerticle {
 
     Promise<String> promise = Promise.promise();
 
-    String address = "getAllPingDevices";
+    String address = SELECT;
 
     String query = SELECT_PING_DEVICES_QUERY;
 
@@ -184,13 +182,14 @@ public class PollingVerticle extends AbstractVerticle {
 
   private void insertPollData(JsonArray pollData){
 
-    eventBus.request("insertInPolling",pollData,reply ->{
+    eventBus.request(INSERT,pollData,reply ->
+    {
 
       if (reply.succeeded()){
 
         logger.info("Polling Data Inserted Successfully");
 
-        eventBus.send("updateMonitorStatus",new JsonObject().put("query", UPDATE_AVAILABILITY_STATUS_QUERY));
+        eventBus.send(UPDATE,new JsonObject().put("query", UPDATE_AVAILABILITY_STATUS_QUERY));
       }else {
 
         logger.error("Polling data insert failed");
