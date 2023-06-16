@@ -264,14 +264,14 @@ public class ProcessRoutingRequest {
   {
     context.response().setStatusCode(statusCode).end();
 
-    LOGGER.debug("Response sent for : " + context.normalizedPath() + "status code "+ statusCode);
+    LOGGER.debug("Response sent for : " + context.normalizedPath() + "  status code "+ statusCode);
   }
 
   private void sendFailResponse(RoutingContext context, int statusCode)
   {
     context.fail(statusCode);
 
-    LOGGER.debug("Context fail sent for : " + context.normalizedPath());
+    LOGGER.debug("Context fail sent for : " + context.normalizedPath() + " status code "+ statusCode );
   }
 
 }

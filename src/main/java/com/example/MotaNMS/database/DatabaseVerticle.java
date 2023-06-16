@@ -35,9 +35,7 @@ public class DatabaseVerticle extends AbstractVerticle {
 
       if (!poolCreated)
       {
-
         throw new Exception("Connection pool creation failed");
-
       }
 
       eventBus.localConsumer(INSERT).handler(this::insert);
@@ -49,6 +47,8 @@ public class DatabaseVerticle extends AbstractVerticle {
       eventBus.localConsumer(UPDATE).handler(this::update);
 
       startPromise.complete();
+
+      LOGGER.info("Database verticle successfully deployed");
     }
     catch (Exception exception)
     {
@@ -432,7 +432,6 @@ public class DatabaseVerticle extends AbstractVerticle {
       }
       finally
       {
-
         try
         {
           if (preparedInsertStatement != null)
@@ -440,10 +439,9 @@ public class DatabaseVerticle extends AbstractVerticle {
             preparedInsertStatement.close();
           }
         }
-        catch (Exception exception) {
-
+        catch (Exception exception)
+        {
           LOGGER.error(exception.getMessage(),exception.getCause());
-
         }
         ConnectionPool.getInstance().releaseConnection(connection);
       }

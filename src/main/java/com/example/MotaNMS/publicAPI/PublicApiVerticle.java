@@ -27,7 +27,7 @@ public class PublicApiVerticle extends AbstractVerticle
 
       ProcessRoutingRequest process = new ProcessRoutingRequest();
 
-      process.setEventBus(vertx);
+      process.setEventBus(getVertx());
 
       Router router = Router.router(vertx);
 
@@ -84,21 +84,23 @@ public class PublicApiVerticle extends AbstractVerticle
       vertx.createHttpServer(new HttpServerOptions().setSsl(true).setKeyStoreOptions(
           new JksOptions().setPath("server-keystore.jks").setPassword("sankalp")))
         .requestHandler(router).listen(HTTP_PORT)
-        .onComplete(listenng ->
+        .onComplete(listening ->
           {
-            if (listenng.succeeded())
+            if (listening.succeeded())
             {
               LOGGER.info("Listening on port: " + HTTP_PORT);
             }
             else
             {
-              startPromise.fail(listenng.cause());
+              startPromise.fail(listening.cause());
 
-              LOGGER.error(listenng.cause().getMessage(),listenng.cause());
+              LOGGER.error(listening.cause().getMessage(),listening.cause());
             }
           });
 
           startPromise.complete();
+
+          LOGGER.info("public api successfully deployed");
 
     } catch (Exception exception)
     {
