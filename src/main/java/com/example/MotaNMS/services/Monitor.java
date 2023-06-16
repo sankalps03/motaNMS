@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static com.example.MotaNMS.util.QueryConstants.*;
 import static com.example.MotaNMS.util.GeneralConstants.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,10 +20,11 @@ public class Monitor {
 
   Vertx vertx;
 
-  private final Logger logger = LoggerFactory.getLogger(Monitor.class);
+  private final Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
 
   protected void setEventBus(Vertx vertx1) {
     vertx = vertx1;
+
     eventBus = vertx.eventBus();
 
   }
@@ -33,23 +33,19 @@ public class Monitor {
 
     try {
 
-      String query = MONITOR_SELECT_QUERY;
+      eventBus.request(SELECT, new JsonObject().put("table", "monitor").put("query", MONITOR_SELECT_QUERY), reply ->
+      {
+        if (reply.succeeded()) {
+          String tableData = reply.result().body().toString();
 
-      eventBus.request(SELECT, new JsonObject().put("table", "monitor").put("query", query), reply -> {
+          message.reply(tableData);
 
-        if (reply.succeeded())
-        {
-          String data = reply.result().body().toString();
+          LOGGER.debug("Monitor table data load success");
 
-          message.reply(data);
+        } else {
+          message.fail(2, "Monitor table Data load failed");
 
-          logger.info("monitor data loaded success");
-
-        } else
-        {
-          message.fail(2, "");
-
-          logger.error("could not load data");
+          LOGGER.error("Monitor table data load failed");
         }
 
       });
@@ -57,127 +53,170 @@ public class Monitor {
 
       message.fail(2, exception.getMessage());
 
-      logger.error(exception.getMessage());
+      LOGGER.error(exception.getMessage(), exception.getCause());
     }
   }
 
   protected void delete(Message<Object> message) {
 
-    JsonObject deleteData = (JsonObject) message.body();
+    try {
 
-    String query = MONITOR_DELETE_QUERY;
+      if (message.body() == null) {
 
-    String id = deleteData.getString("id");
+        throw new Exception("Message body is null");
+      }
 
-    if (!id.isEmpty()) {
+      JsonObject deleteData = (JsonObject) message.body();
 
-      eventBus.request(ROW_ID_OPERATION, new JsonObject().put("id", id).put("query", query), reply -> {
+      String id = deleteData.getString("id");
 
-        if (reply.succeeded()) {
+      if (!id.isEmpty()) {
+        eventBus.request(ROW_ID_OPERATION, new JsonObject().put("id", id).put("query", MONITOR_DELETE_QUERY), reply ->
+        {
 
-          message.reply("row deleted");
+          if (reply.succeeded()) {
+            message.reply("Monitor table row deleted Successfully : row id " + id);
 
-          logger.info("Monitor row deleted Successfully");
+            LOGGER.info("Monitor table row deleted Successfully");
 
-        } else {
+          } else {
+            message.fail(2, "Monitor table row deletion failed : row id" + id);
 
-          message.fail(2, "");
+            LOGGER.error("row delete failed : row id " + id);
+          }
+        });
+      } else {
+        message.fail(2, "No row id to delete ");
 
-          logger.error("row delete failed");
+        LOGGER.error("No row id to delete");
+      }
+    } catch (Exception exception) {
+      message.fail(2, exception.getMessage());
 
-        }
-      });
-    } else {
-
-      message.fail(2, "No row id to delete");
+      LOGGER.error(exception.getMessage(), exception.getCause());
     }
   }
 
-  protected void loadDeviceData(Message<Object> message) {
+  protected void loadDeviceData(Message<Object> message)
+  {
 
-    List<JsonArray> deviceInfoData = new ArrayList<>();
+    try
+    {
+      if (message.body() == null) {
 
-    JsonObject deviceIp = (JsonObject) message.body();
+        throw new Exception("Message body is null");
+      }
+      List<JsonArray> deviceInfoData = new ArrayList<>();
 
-    String availabilityQuery = LAST_24_HOUR_AVAILABILITY_QUERY;
+      JsonObject deviceIp = (JsonObject) message.body();
 
-    String query ;
+      String availabilityQuery = LAST_24_HOUR_AVAILABILITY_QUERY;
 
-    if(deviceIp.getString("type").equals("ssh")){
+      String query;
 
-      query= SSH_LATEST_DATA_QUERY;
-      CompositeFuture.join(getDeviceInfoData(deviceIp.put("query",query)),
-        getDeviceInfoData(deviceIp.put("query",availabilityQuery)),
-        getDeviceInfoData(deviceIp.put("query",LAST_1_HOUR_CPU_USED_QUERY)),
-          getDeviceInfoData(deviceIp.put("query",LAST_1_HOUR_MEMORY_USED_QUERY)),
-            getDeviceInfoData(deviceIp.put("query",LAST_1_HOUR_DISK_USED_QUERY))).onComplete(handler -> {
+      if (deviceIp.getString("type").equals("ssh"))
+      {
+        query = SSH_LATEST_DATA_QUERY;
 
-        if (handler.succeeded()) {
+        CompositeFuture.join(getDeviceInfoData(deviceIp.put("query", query)),
+          getDeviceInfoData(deviceIp.put("query", availabilityQuery)),
+          getDeviceInfoData(deviceIp.put("query", LAST_1_HOUR_CPU_USED_QUERY)),
+          getDeviceInfoData(deviceIp.put("query", LAST_1_HOUR_MEMORY_USED_QUERY)),
+          getDeviceInfoData(deviceIp.put("query", LAST_1_HOUR_DISK_USED_QUERY)))
+          .onComplete(handler ->
+        {
+          if (handler.succeeded())
+          {
+            for (int futures = 0; futures < handler.result().size(); futures++)
+            {
+              if (handler.result().resultAt(futures) != null)
+              {
+                JsonArray future = handler.result().resultAt(futures);
 
-          for (int i = 0; i < handler.result().size(); i++) {
-
-            JsonArray future = handler.result().resultAt(i);
-
-            deviceInfoData.add(future);
-
+                deviceInfoData.add(future);
+              }
+            }
+            message.reply(deviceInfoData.toString());
           }
-          System.out.println(deviceInfoData);
+        });
+      }
+      else
+      {
+        query = PING_LATEST_DATA_QUERY;
 
-          message.reply(deviceInfoData.toString());
-        }
+        CompositeFuture.join(getDeviceInfoData(deviceIp.put("query", query)),
+          getDeviceInfoData(deviceIp.put("query", availabilityQuery)))
+          .onComplete(handler ->
+          {
+          if (handler.succeeded())
+          {
+            for (int futures = 0; futures < handler.result().size(); futures++)
+            {
+              if (handler.result().resultAt(futures) != null) {
 
-      });
+                JsonArray future = handler.result().resultAt(futures);
 
-
-    }else {
-
-      query = PING_LATEST_DATA_QUERY;
-
-      CompositeFuture.join(getDeviceInfoData(deviceIp.put("query",query)),getDeviceInfoData(deviceIp.put("query",availabilityQuery))).onComplete(handler -> {
-
-        if (handler.succeeded()) {
-
-          for (int i = 0; i < handler.result().size(); i++) {
-
-            JsonArray future = handler.result().resultAt(i);
-
-            deviceInfoData.add(future);
-
+                deviceInfoData.add(future);
+              }
+            }
+            message.reply(deviceInfoData.toString());
           }
-          System.out.println(deviceInfoData);
-
-          message.reply(deviceInfoData.toString());
-        }
-
-      });
-
-
+        });
+      }
     }
+    catch (Exception exception)
+    {
+      message.fail(2,exception.getMessage());
 
+      LOGGER.error(exception.getMessage(), exception.getCause());
+    }
   }
 
   private Future<JsonArray> getDeviceInfoData(JsonObject device) {
 
-    Promise<JsonArray> promise = Promise.promise();
+    Promise<JsonArray> promise = null;
 
-    eventBus.request(SELECT, device, messageAsyncResult -> {
+    try
+    {
+      promise = Promise.promise();
 
-      if (messageAsyncResult.succeeded()) {
+      Promise<JsonArray> finalPromise = promise;
 
-        String deviceInfo = messageAsyncResult.result().body().toString();
+      eventBus.request(SELECT, device, messageAsyncResult -> {
 
-        JsonArray deviceInfoArray = new JsonArray(deviceInfo);
+        if (messageAsyncResult.succeeded()) {
 
-        promise.complete(deviceInfoArray);
+          String deviceInfo = messageAsyncResult.result().body().toString();
 
-      } else {
+          JsonArray deviceInfoArray = new JsonArray(deviceInfo);
 
-        logger.error("cant get device data");
+          finalPromise.complete(deviceInfoArray);
 
+          LOGGER.debug("Data fetch successful for :" + device);
+        }
+        else
+        {
+          finalPromise.fail("Data fetch failed for: "+device);
+
+          LOGGER.error("Data fetch failed for: "+device);
+        }
+      });
+    }
+    catch (Exception exception)
+    {
+      if (promise != null)
+      {
+        promise.fail(exception.getCause());
       }
-
-    });
-
-    return promise.future();
+      LOGGER.error(exception.getMessage(),exception.getCause());
+    }
+    if (promise != null)
+    {
+      return promise.future();
+    }
+    else
+    {
+    return null;
+    }
   }
 }

@@ -113,15 +113,15 @@ public class Dashboard
       if (promise != null)
       {
         promise.fail(exception.getCause());
-
       }
-
       LOGGER.error(exception.getMessage(), exception.getCause());
     }
     if (promise != null)
     {
       return promise.future();
-    }
+    }else
+    {
     return null;
+    }
   }
 }
