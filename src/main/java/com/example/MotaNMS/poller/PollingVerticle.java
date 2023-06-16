@@ -8,197 +8,192 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.time.LocalDateTime;
+import java.util.Objects;
 import static com.example.MotaNMS.util.GeneralConstants.*;
 import static com.example.MotaNMS.util.QueryConstants.*;
 import static com.example.MotaNMS.util.Utilities.*;
+
 public class PollingVerticle extends AbstractVerticle {
 
   EventBus eventBus;
 
-  private static final Logger logger = LoggerFactory.getLogger(PollingVerticle.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PollingVerticle.class);
 
-  public void start(Promise<Void> startPromise){
+  public void start(Promise<Void> startPromise)
+  {
+    try
+    {
+      eventBus = vertx.eventBus();
 
-    eventBus  = vertx.eventBus();
+      long pingTimerId = vertx.setPeriodic(2 * 60 * 1000, pingPoll -> pollData("ping"));
 
-    vertx.setPeriodic(2*60*1000 , pingPoll ->{
+      if (pingTimerId == -1)
+      {
+        throw new Exception("Set periodic startup for ping failed id : " + pingTimerId);
+      }
 
-      pollData("ping");
+      long sshTimerId = vertx.setPeriodic(5 * 60 * 1000, pingPoll -> pollData("ssh"));
 
-    });
+      if (sshTimerId == -1)
+      {
+        throw new Exception("Set periodic startup for ssh failed id : " + sshTimerId);
+      }
 
-    vertx.setPeriodic(5*60*1000 , pingPoll ->{
+      startPromise.complete();
 
-      pollData("ssh");
+      LOGGER.info("polling verticle successfully deployed");
 
-    });
+    }
+    catch (Exception exception)
+    {
+      startPromise.fail(exception.getCause());
 
-    startPromise.complete();
+      LOGGER.error(exception.getMessage(), exception.getCause());
+    }
   }
 
-  private void pollData(String category) {
+  private void pollData(String category)
+  {
+    try
+    {
+    if (category.equals("ssh"))
+    {
+      Objects.requireNonNull(getDevices(SELECT_SSH_DEVICES_QUERY)).onSuccess(result ->
+      {
+        if (result != null) {
 
+          JsonArray deviceDataArray = new JsonArray();
 
-    if (category.equals("ssh")){
+          JsonArray credentialArray = new JsonArray(result);
 
-      getSshDevices().onSuccess(result->{
+          for (Object Credentialobject : credentialArray) {
+            JsonObject dataObject = (JsonObject) Credentialobject;
 
-        String credentials = result.toString();
+            String credential = dataObject.getString("CREDENTIAL");
 
-        JsonArray deviceDataArray = new JsonArray();
+            JsonObject deviceData = new JsonObject(credential);
 
-        JsonArray credentialArray = new JsonArray(credentials);
+            deviceData.put("type", dataObject.getValue("TYPE"))
+              .put("ip", dataObject.getValue("IPADDRESS")).put("category", "polling");
 
-        for (Object object:credentialArray) {
+            deviceDataArray.add(deviceData);
+          }
+          vertx.executeBlocking(pollSsh ->
+          {
+            JsonArray pollData = runPluginPolling(deviceDataArray);
 
-          JsonObject dataObject = (JsonObject) object;
-
-          String credential =  dataObject.getString("CREDENTIAL");
-
-          JsonObject deviceData = new JsonObject(credential);
-
-          deviceData.put("type", dataObject.getValue("TYPE"))
-            .put("ip", dataObject.getValue("IPADDRESS")).put("category","polling");
-
-          deviceDataArray.add(deviceData);
-
+            insertPollData(pollData);
+          });
+        }else
+        {
+          LOGGER.error("polling for ssh failed null device list : "+ LocalDateTime.now());
         }
-
-        vertx.executeBlocking(pollSsh ->{
-
-          JsonArray pollData = runPluginPolling(deviceDataArray);
-
-          insertPollData(pollData);
-        });
-
-      });
-
-    }else {
-
-      getPingDevices().onSuccess(result->{
-
-        String credentials = result.toString();
-
-        JsonArray deviceDataArray = new JsonArray();
-
-        JsonArray credentialArray = new JsonArray(credentials);
-
-        for (Object object:credentialArray) {
-
-          JsonObject dataObject = (JsonObject) object;
-
-          JsonObject deviceData = new JsonObject();
-
-          deviceData.put("type", "ping")
-            .put("ip", dataObject.getValue("IPADDRESS")).put("category","polling");
-          deviceDataArray.add(deviceData);
-
-        }
-
-        vertx.executeBlocking(pollPing ->{
-
-          JsonArray pollData = runPluginPolling(deviceDataArray);
-
-          insertPollData(pollData);
-
-        });
-
       });
     }
-
-  }
-
-  private Future<String> getSshDevices() {
-
-    Promise<String> promise = Promise.promise();
-
-    String address = SELECT;
-
-    String query = SELECT_SSH_DEVICES_QUERY;
-
-    getDevices(address,query).onComplete(reslt ->{
-
-      if (reslt.succeeded()){
-
-        String credentials = reslt.result().toString();
-
-        promise.complete(credentials);
-      }
-      else {
-
-        logger.error("couldnt get devices data");
-      }
-    });
-    return promise.future();
-  }
-
-  private Future<String> getPingDevices() {
-
-    Promise<String> promise = Promise.promise();
-
-    String address = SELECT;
-
-    String query = SELECT_PING_DEVICES_QUERY;
-
-    getDevices(address,query).onComplete(reslt ->{
-
-      if (reslt.succeeded()){
-
-        String credentials = reslt.result().toString();
-
-        promise.complete(credentials);
-      }
-      else {
-
-        logger.error("couldn't get devices data");
-      }
-    });
-
-    return promise.future();
-  }
-
-  private Future<String> getDevices(String address, String query) {
-
-    Promise<String> promise = Promise.promise();
-
-    eventBus.request(address, new JsonObject().put("query", query), messageAsyncResult -> {
-
-      if (messageAsyncResult.succeeded()) {
-
-        String credentials = messageAsyncResult.result().body().toString();
-
-        promise.complete(credentials);
-
-
-      } else {
-
-        logger.error("cant get device data");
-
-      }
-
-    });
-    return promise.future();
-  }
-
-  private void insertPollData(JsonArray pollData){
-
-    eventBus.request(INSERT,pollData,reply ->
+    else
     {
+      Objects.requireNonNull(getDevices(SELECT_PING_DEVICES_QUERY)).onSuccess(result ->
+      {
+        if (result != null) {
 
-      if (reply.succeeded()){
+          JsonArray deviceDataArray = new JsonArray();
 
-        logger.info("Polling Data Inserted Successfully");
+          JsonArray credentialArray = new JsonArray(result);
 
-        eventBus.send(UPDATE,new JsonObject().put("query", UPDATE_AVAILABILITY_STATUS_QUERY));
-      }else {
+          for (Object credentialObject : credentialArray) {
 
-        logger.error("Polling data insert failed");
+            JsonObject dataObject = (JsonObject) credentialObject;
+
+            JsonObject deviceData = new JsonObject();
+
+            deviceData.put("type", "ping")
+              .put("ip", dataObject.getValue("IPADDRESS")).put("category", "polling");
+            deviceDataArray.add(deviceData);
+          }
+          vertx.executeBlocking(pollPing ->
+          {
+            JsonArray pollData = runPluginPolling(deviceDataArray);
+
+            insertPollData(pollData);
+          });
+        }else
+        {
+          LOGGER.error("polling for ping failed null device list : " + LocalDateTime.now());
+        }
+      });
+    }
+  }
+    catch (Exception exception)
+    {
+      LOGGER.error(exception.getMessage(),exception.getCause());
+    }
+  }
+
+  private Future<String> getDevices(String query)
+  {
+    Promise<String> promise = null;
+    try
+    {
+      promise = Promise.promise();
+
+      Promise<String> finalPromise = promise;
+
+      eventBus.request(SELECT, new JsonObject().put("query", query), messageAsyncResult ->
+      {
+        if (messageAsyncResult.succeeded())
+        {
+          String credentials = messageAsyncResult.result().body().toString();
+
+          finalPromise.complete(credentials);
+        }
+        else
+        {
+          finalPromise.fail("Device list fetch failed");
+
+          LOGGER.error("Device list fetch failed " + LocalDateTime.now());
+        }
+      });
+
+    }
+    catch (Exception exception)
+    {
+      if (promise != null)
+      {
+        promise.fail(exception.getCause());
       }
+      LOGGER.error(exception.getMessage(), exception.getCause());
+    }
+    if (promise != null)
+    {
+      return promise.future();
+    }else
+    {
+      return null;
+    }
+  }
 
+  private void insertPollData(JsonArray pollData)
+  {
+    try
+    {
+    eventBus.request(INSERT, pollData, reply ->
+    {
+      if (reply.succeeded())
+      {
+        LOGGER.debug("Polling Data Inserted Successfully :"+ LocalDateTime.now());
 
+        eventBus.send(UPDATE, new JsonObject().put("query", UPDATE_AVAILABILITY_STATUS_QUERY));
+      }
+      else
+      {
+        LOGGER.error("Polling data insert failed : "+ LocalDateTime.now());
+      }
     });
 
-
-
+  }catch (Exception exception)
+    {
+      LOGGER.error(exception.getMessage(),exception.getCause());
+    }
   }
 }
