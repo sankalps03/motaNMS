@@ -1,6 +1,6 @@
 var monitor = {
 
-  loadMonitor: function (){
+  loadMonitor: function () {
 
     $('#body').html(monitorPage)
 
@@ -14,15 +14,15 @@ var monitor = {
 
     api.ajaxCall(ajaxData)
 
-    let dataTable = $('#monitorTable').DataTable({
-      "pageLength": 10,
-      "dom": '<"top">ct<"top"p><"clear">'
+    common.initializeDatatable("monitorTable");
 
-    });
-    $("#filterbox").keyup(function () {
-      dataTable.search(this.value).draw();
-    });
+    monitor.viewDeviceInfo();
 
+    monitor.deleteBtn();
+
+  },
+
+  deleteBtn : function (){
 
     $('#monitorTable').on('click', '.deleteDiscovery', function deleteRow(event) {
       var a = $(event.target);
@@ -31,18 +31,30 @@ var monitor = {
 
       var id = {id: row.find("td:nth-child(1)").text()};
 
-      let deleteAjaxData = {
+      var ip = row.find("td:nth-child(2)").text();
 
-        url: "https://localhost:8080/api/monitor/delete",
-        type: "POST",
-        data: JSON.stringify(id),
-        dataType: 'json',
-        successCallback: monitor.btnsuccessMonitor
-      }
+      var result = confirm("Do you want to delete "+ip );
 
-      api.ajaxCall(deleteAjaxData)
+        if (result) {
+
+          let deleteAjaxData = {
+
+            url: "https://localhost:8080/api/monitor/delete",
+            type: "POST",
+            data: JSON.stringify(id),
+            dataType: 'json',
+            successCallback: monitor.successMonitor,
+            failCallback: monitor.successMonitor,
+          }
+
+          api.ajaxCall(deleteAjaxData)
+        }
 
     });
+
+  },
+
+  viewDeviceInfo: function (){
 
     $('#monitorTable').on('click', '.provisionBtn', function provision(event) {
 
@@ -50,17 +62,17 @@ var monitor = {
 
       var row = a.closest("tr")
 
-      var deviceId  = {ip: row.find("td:nth-child(2)").text(),
+      var deviceId = {
+        ip: row.find("td:nth-child(2)").text(),
         type: row.find("td:nth-child(3)").text(),
-        status: row.find("td:nth-child(4)").text()};
+        status: row.find("td:nth-child(4)").text()
+      };
 
       device.onload(deviceId)
 
-      console.log(deviceId)
-
     });
 
-      },
+  },
 
   updateMonitorTable: function (result) {
 
@@ -88,11 +100,10 @@ var monitor = {
 
               return '<span class="mode mode_on">up</span>'
 
-            } else if(data === "down") {
+            } else if (data === "down") {
 
               return '<span class="mode mode_off">Down</span>'
-            }
-            else {
+            } else {
 
               return '<span class="mode mode_process">UNKNOWN</span>'
 
@@ -111,24 +122,24 @@ var monitor = {
 
     });
 
-    $("#filterbox").keyup(function () {
-      dataTable.search(this.value).draw();
-    });
-    },
+    common.searchBar(dataTable);
+  },
 
-  btnsuccessMonitor:function  (result){
+  successMonitor: function (result) {
 
-    discovery.showNotification("success","success")
+    if (result.status === 200) {
 
-  monitor.loadMonitor;
-},
-  btnFailMonitor:function  (result){
+      common.showNotification("successful", result.responseText)
 
-    discovery.showNotification("fail","error")
+    } else {
 
-    monitor.loadMonitor;
+      common.showNotification("fail", result.responseText)
 
-  }
+    }
+
+    monitor.loadMonitor();
+  },
+
 
 }
 

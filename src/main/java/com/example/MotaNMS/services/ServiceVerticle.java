@@ -62,13 +62,12 @@ public class ServiceVerticle extends AbstractVerticle
 
       LOGGER.info("service verticle successfully deployed ");
 
-    } catch (Exception exception)
+    }
+    catch (Exception exception)
     {
-
       startPromise.fail(exception.getCause());
 
       LOGGER.error(exception.getMessage(),exception.getCause());
-
     }
   }
 }

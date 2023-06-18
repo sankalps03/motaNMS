@@ -18,8 +18,9 @@ public class Discovery {
 
   Vertx vertx;
 
-  protected void setEventBus(Vertx vertx1) {
-    vertx = vertx1;
+  protected void setEventBus(Vertx vertxx) {
+
+    vertx = vertxx;
 
     eventBus = vertx.eventBus();
   }
@@ -47,16 +48,15 @@ public class Discovery {
 
       String type = addData.getString("type");
 
-      if (type.equals("ssh")) {
-
+      if (type.equals("ssh"))
+      {
         username = addData.getString("username");
 
         password = addData.getString("password");
-
       }
 
-      if (!ip.isEmpty() && !type.isEmpty() && (((type.equals("ssh")) && (!username.isEmpty() && !password.isEmpty())) || (type.equals("ping")))) {
-
+      if (!ip.isEmpty() && !type.isEmpty() && (((type.equals("ssh")) && (!username.isEmpty() && !password.isEmpty())) || (type.equals("ping"))))
+      {
         JsonObject checkedData = new JsonObject();
 
         credentials.put("username", username)
@@ -78,18 +78,21 @@ public class Discovery {
             LOGGER.debug("Added to discovery table : " + ip);
 
           } else {
-            message.fail(2, "insert failed for : " + ip);
+            message.fail(2, reply.cause().getMessage() + ip);
 
-            LOGGER.error("insert failed for : " + ip);
+            LOGGER.debug("insert failed for : " + ip);
           }
         });
 
-      } else {
-        message.fail(2, "Bad data received for add discovery for :" + ip);
+      }
+      else
+      {
+        message.fail(2, "Bad data received to add discovery  :" + ip);
 
-        LOGGER.error("Incomplete or Bad data for add to discovery for : " + ip);
+        LOGGER.debug("Incomplete or Bad data to add to discovery for : " + ip);
       }
     } catch (Exception exception) {
+
       message.fail(2, exception.getMessage());
 
       LOGGER.error(exception.getMessage(), exception.getCause());
@@ -117,15 +120,15 @@ public class Discovery {
 
           if (reply.succeeded()) {
 
-            message.reply("row deleted succesfuly: row id" + id);
+            message.reply("row deleted succesfuly: row id " + id);
 
-            LOGGER.debug("Discovery row deleted Successfully : row id" + id);
+            LOGGER.debug("Discovery row deleted Successfully : row id " + id);
 
           } else {
 
-            message.fail(2, "");
+            message.fail(2, reply.cause().getMessage());
 
-            LOGGER.error("row delete failed");
+            LOGGER.debug("row delete failed");
 
           }
         });
@@ -186,7 +189,7 @@ public class Discovery {
 
             JsonObject result = resultArray.getJsonObject(0);
 
-            if (result.getString("STATUS").equals("SUCCESSFUL"))
+            if (result.getString("status").equals("successful"))
             {
               discover.complete();
             } else {
@@ -200,14 +203,14 @@ public class Discovery {
 
               eventBus.send(ROW_ID_OPERATION, new JsonObject().put("id", id).put("query", SET_PROVISION_TRUE_QUERY));
 
-              message.reply("Discovery success");
+              message.reply("Discovery success for : " + credentialObject.getString("ip"));
 
-              LOGGER.debug("Discovery run successful for : " + credentialObject);
+              LOGGER.debug("Discovery run successful for : " + credentialObject.getString("ip"));
             } else {
 
-              message.fail(2, "Discovery failed for : " + credentialObject);
+              message.fail(2, "Discovery failed for : " + credentialObject.getString("ip"));
 
-              LOGGER.error("Discovery failed for : " + credentialObject);
+              LOGGER.debug("Discovery failed for : " + credentialObject.getString("ip"));
             }
           });
         }
@@ -240,15 +243,15 @@ public class Discovery {
         {
           if (reply.succeeded())
           {
-            message.reply("Device provisoned sucessfully : row id"+ id);
+            message.reply("Device provisoned sucessfully : row id "+ id);
 
-            LOGGER.debug("Device provisiond sucessfully :row id" + id);
+            LOGGER.debug("Device provisiond sucessfully :row id " + id);
           }
           else
           {
-            message.fail(2, "provisioning failed for row id "+ id);
+            message.fail(2, reply.cause().getMessage()+ id);
 
-            LOGGER.error("provisioning failed for :row id " +id);
+            LOGGER.debug("provisioning failed for :row id " +id);
           }
         });
     }
@@ -282,7 +285,7 @@ public class Discovery {
         {
           message.fail(2, "Discovery table load failed ");
 
-          LOGGER.error("Discovery table load failed");
+          LOGGER.debug("Discovery table load failed");
         }
 
       });

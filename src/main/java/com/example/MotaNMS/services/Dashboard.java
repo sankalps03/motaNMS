@@ -69,59 +69,42 @@ public class Dashboard
     }
     catch (Exception exception)
     {
-
       LOGGER.error(exception.getMessage(),exception.getCause());
-
     }
   }
 
 
   private Future<JsonArray> dashboardDbRequest(String query) {
 
-    Promise<JsonArray> promise = null;
+    Promise<JsonArray> promise = Promise.promise();
 
-    try {
-
-      promise = Promise.promise();
-
-      Promise<JsonArray> finalPromise = promise;
-
+    try
+    {
       eventBus.request(SELECT, new JsonObject().put("query", query), messageAsyncResult ->
       {
-
         if (messageAsyncResult.succeeded()) {
 
           String dashboardData = messageAsyncResult.result().body().toString();
 
           JsonArray dashboardDataArray = new JsonArray(dashboardData);
 
-          finalPromise.complete(dashboardDataArray);
-
-        } else
-        {
-          finalPromise.fail(messageAsyncResult.cause());
-
-          LOGGER.error(messageAsyncResult.cause().getMessage() + " : " + query);
+          promise.complete(dashboardDataArray);
 
         }
+        else
+        {
+          promise.fail(messageAsyncResult.cause());
 
+          LOGGER.error(messageAsyncResult.cause().getMessage() + " : " + query);
+        }
       });
-
     }
     catch (Exception exception)
     {
-      if (promise != null)
-      {
-        promise.fail(exception.getCause());
-      }
+      promise.fail(exception.getCause());
+
       LOGGER.error(exception.getMessage(), exception.getCause());
     }
-    if (promise != null)
-    {
-      return promise.future();
-    }else
-    {
-    return null;
-    }
+    return promise.future();
   }
 }

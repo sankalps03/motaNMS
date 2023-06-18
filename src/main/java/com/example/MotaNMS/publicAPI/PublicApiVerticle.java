@@ -23,7 +23,8 @@ public class PublicApiVerticle extends AbstractVerticle
 
   public void start(Promise<Void> startPromise) {
 
-    try {
+    try
+    {
 
       ProcessRoutingRequest process = new ProcessRoutingRequest();
 
@@ -50,7 +51,14 @@ public class PublicApiVerticle extends AbstractVerticle
 
         context.clearUser();
 
-        context.reroute("/api/*");
+
+        context.response().putHeader("Cache-Control", "no-cache, no-store, must-revalidate")
+          .putHeader("Pragma", "no-cache")
+          .putHeader("Expires", "-1");
+
+        context.reroute("/api");
+
+
       });
 
       SockJSHandler jsHandler = SockJSHandler.create(vertx);
@@ -88,6 +96,8 @@ public class PublicApiVerticle extends AbstractVerticle
           {
             if (listening.succeeded())
             {
+              startPromise.complete();
+
               LOGGER.info("Listening on port: " + HTTP_PORT);
             }
             else
@@ -97,8 +107,6 @@ public class PublicApiVerticle extends AbstractVerticle
               LOGGER.error(listening.cause().getMessage(),listening.cause());
             }
           });
-
-          startPromise.complete();
 
           LOGGER.info("public api successfully deployed");
 

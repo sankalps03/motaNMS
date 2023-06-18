@@ -97,7 +97,7 @@ public class ConnectionPool {
 
   }
 
-  private void closeAllConnections()
+  protected void closeAllConnections()
   {
 
     for (int index = 0; index < connections.size(); index++)

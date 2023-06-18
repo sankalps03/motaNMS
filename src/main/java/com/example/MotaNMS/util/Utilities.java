@@ -9,10 +9,8 @@ import java.nio.charset.StandardCharsets;
 
 public class Utilities {
 
-  public static JsonArray runPluginPolling(JsonArray data) {
-
-    System.out.println(data);
-
+  public static JsonArray runPluginPolling(JsonArray data)
+  {
     JsonObject credential = data.getJsonObject(0);
 
     String dataEncoder = (Base64.getEncoder().encodeToString((data).toString().getBytes(StandardCharsets.UTF_8)));
@@ -23,14 +21,16 @@ public class Utilities {
 
     var dataArray = new JsonArray();
 
-    try {
-      process = new ProcessBuilder("src/main/java/com/example/MotaNMS/plugins/poll.exe",dataEncoder).start();
+    try
+    {
+      process = new ProcessBuilder("src/main/java/com/example/MotaNMS/plugins/init.exe",dataEncoder).start();
 
       reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
       String line;
 
-      while ((line = reader.readLine()) != null) {
+      while ((line = reader.readLine()) != null)
+      {
 
         if (!(line.equals("null"))){
 
@@ -40,26 +40,26 @@ public class Utilities {
 
           var resultObject=resultArray.getJsonObject(0);
 
-          System.out.println(resultObject);
-
-          if(resultObject.getString("status").equals("success")){
-            credential.put("STATUS", "SUCCESSFUL");
-          }else{
-            credential.put("STATUS", "UNSUCCESSFUL");
+          if(resultObject.getString("status").equals("success"))
+          {
+            credential.put("status", "successful");
+          }
+          else
+          {
+            credential.put("status", "failed");
           }
 
           dataArray.add(credential);
-        }else {
-
+        }
+        else
+        {
           dataArray.addAll(resultArray);
-
         }
       }
       }
     } catch (Exception e) {
 
       e.printStackTrace();
-
 
     } finally {
 

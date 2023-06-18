@@ -60,6 +60,13 @@ public class DatabaseVerticle extends AbstractVerticle {
     }
   }
 
+  public void stop()
+  {
+
+    ConnectionPool.getInstance().closeAllConnections();
+
+  }
+
   private void update(Message<Object> message)
   {
 
@@ -86,7 +93,7 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         connection = ConnectionPool.getInstance().getConnection();
 
-        if (connection.isClosed())
+        if (connection == null || connection.isClosed())
         {
 
           throw new Exception("Database connection is closed: " + query );
@@ -95,8 +102,8 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         preparedUpdateStatement = connection.prepareStatement(query);
 
-        if (preparedUpdateStatement == null){
-
+        if (preparedUpdateStatement == null)
+        {
           throw  new Exception("Prepared Statement is null");
         }
 
@@ -119,10 +126,9 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         try
         {
-          if (preparedUpdateStatement != null) {
-
+          if (preparedUpdateStatement != null && !preparedUpdateStatement.isClosed())
+          {
             preparedUpdateStatement.close();
-
           }
         }
         catch (Exception exception) {
@@ -165,7 +171,7 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         connection = ConnectionPool.getInstance().getConnection();
 
-        if (connection.isClosed())
+        if (connection == null || connection.isClosed())
         {
 
           throw new Exception("Database connection is closed: " + query );
@@ -279,7 +285,7 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         connection = ConnectionPool.getInstance().getConnection();
 
-        if (connection.isClosed())
+        if (connection == null || connection.isClosed())
         {
 
           throw new Exception("Database connection is closed: " + query );
@@ -372,7 +378,7 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         connection = ConnectionPool.getInstance().getConnection();
 
-        if (connection.isClosed())
+        if (connection == null || connection.isClosed())
         {
 
           throw new Exception("Database connection is closed: " + query );

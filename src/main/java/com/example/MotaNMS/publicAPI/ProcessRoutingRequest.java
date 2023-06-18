@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import static com.example.MotaNMS.util.GeneralConstants.*;
 
 public class ProcessRoutingRequest {
-
   private static final Logger LOGGER = LoggerFactory.getLogger(ProcessRoutingRequest.class);
 
   EventBus eventBus;
@@ -20,14 +19,13 @@ public class ProcessRoutingRequest {
   protected void setEventBus(Vertx vertx1)
   {
 
-    try
-    {
+    try {
       vertx = vertx1;
 
       eventBus = vertx.eventBus();
 
-    } catch (Exception exception)
-    {
+    }
+    catch (Exception exception) {
       LOGGER.error(exception.getMessage(), exception.getCause());
     }
 
@@ -36,23 +34,21 @@ public class ProcessRoutingRequest {
   protected void loadDashboardData(RoutingContext context)
   {
 
-    try
-    {
-    eventBus.send(LOAD_DASHBOARD_DATA, "dashBoard");
+    try {
+      eventBus.send(LOAD_DASHBOARD_DATA, "dashBoard");
 
-    LOGGER.debug("Request received for : "+ context.normalizedPath());
+      LOGGER.debug("Request received for : " + context.normalizedPath());
 
-  }catch (Exception exception)
-    {
-      LOGGER.error(exception.getMessage(),exception.getCause());
+    }
+    catch (Exception exception) {
+      LOGGER.error(exception.getMessage(), exception.getCause());
     }
   }
 
   protected void loadMonitorDeviceData(RoutingContext context) {
 
-    try
-    {
-      LOGGER.debug("Request received for : "+ context.normalizedPath());
+    try {
+      LOGGER.debug("Request received for : " + context.normalizedPath());
 
       if (context.body() == null) {
 
@@ -63,34 +59,31 @@ public class ProcessRoutingRequest {
 
       eventBus.request(LOAD_MONITOR_DEVICE_DATA, data, reply ->
       {
-        if (reply.succeeded())
-        {
+        if (reply.succeeded()) {
           String monitorDeviceData = reply.result().body().toString();
 
           context.response().end(monitorDeviceData);
 
-        } else
-        {
-          sendFailResponse(context,500);
+        }
+        else {
+          sendStatusCode(context, 500, reply.cause().getMessage());
         }
       });
-    } catch (Exception exception)
-    {
-
+    }
+    catch (Exception exception) {
       LOGGER.error(exception.getMessage(), exception.getCause());
     }
   }
 
   protected void deleteFromMonitor(RoutingContext context)
   {
-    try
-    {
-      LOGGER.debug("Request received for : "+ context.normalizedPath());
+    try {
+      LOGGER.debug("Request received for : " + context.normalizedPath());
 
       requestEventBusCRUD(context, DELETE_FROM_MONITOR);
 
-    } catch (Exception exception)
-    {
+    }
+    catch (Exception exception) {
       LOGGER.error(exception.getMessage(), exception.getCause());
     }
   }
@@ -99,27 +92,25 @@ public class ProcessRoutingRequest {
   {
     try {
 
-      LOGGER.debug("Request received for : "+ context.normalizedPath());
+      LOGGER.debug("Request received for : " + context.normalizedPath());
 
-    eventBus.request(LOAD_MONITOR_TABLE, "monitorData", reply ->
-    {
-      if (reply.succeeded())
+      eventBus.request(LOAD_MONITOR_TABLE, "monitorData", reply ->
       {
-        String discoveryData = reply.result().body().toString();
+        if (reply.succeeded()) {
+          String discoveryData = reply.result().body().toString();
 
-        context.response().end(discoveryData);
+          context.response().end(discoveryData);
 
-        LOGGER.debug("Response sent for : " + context.normalizedPath());
-      }
-      else
-      {
-        sendFailResponse(context,500);
-      }
-    });
+          LOGGER.debug("Response sent for : " + context.normalizedPath());
+        }
+        else {
+          sendStatusCode(context, 500, reply.cause().getMessage());
+        }
+      });
 
-  }catch (Exception exception)
-    {
-      LOGGER.error(exception.getMessage(),exception.getCause());
+    }
+    catch (Exception exception) {
+      LOGGER.error(exception.getMessage(), exception.getCause());
     }
   }
 
@@ -127,89 +118,84 @@ public class ProcessRoutingRequest {
   {
     try {
 
-      LOGGER.debug("Request received for : "+ routingContext.normalizedPath());
+      LOGGER.debug("Request received for : " + routingContext.normalizedPath());
 
-    eventBus.request(LOAD_DISCOVERY_TABLE, "discoveryData", reply -> {
+      eventBus.request(LOAD_DISCOVERY_TABLE, "discoveryData", reply -> {
 
-      if (reply.succeeded())
-      {
-        String discoveryData = reply.result().body().toString();
+        if (reply.succeeded()) {
+          String discoveryData = reply.result().body().toString();
 
-        routingContext.response().end(discoveryData);
+          routingContext.response().end(discoveryData);
 
-        LOGGER.debug("Response sent for : " + routingContext.normalizedPath());
-      }
-      else
-      {
-        sendFailResponse(routingContext,500);
-      }
-    });
+          LOGGER.debug("Response sent for : " + routingContext.normalizedPath());
+        }
+        else {
+          sendStatusCode(routingContext, 500, reply.cause().getMessage());
+        }
+      });
 
-  }catch (Exception exception)
-    {
-      LOGGER.error(exception.getMessage(),exception.getCause());
+    }
+    catch (Exception exception) {
+      LOGGER.error(exception.getMessage(), exception.getCause());
     }
   }
 
   protected void provisionDevice(RoutingContext routingContext)
   {
 
-    try
-    {
+    try {
 
-      LOGGER.debug("Request received for : "+ routingContext.normalizedPath());
+      LOGGER.debug("Request received for : " + routingContext.normalizedPath());
 
       requestEventBusCRUD(routingContext, PROVISION_DEVICE);
 
-  }
-    catch (Exception exception){
+    }
+    catch (Exception exception) {
 
-      LOGGER.error(exception.getMessage(),exception.getCause());
+      LOGGER.error(exception.getMessage(), exception.getCause());
     }
   }
 
   protected void discoveryRun(RoutingContext routingContext)
   {
-    try {
-
-    LOGGER.debug("Request received for : "+ routingContext.normalizedPath());
-
-    if (routingContext.body() == null)
-    {
-      throw new Exception("Received null context body");
-    }
-
-    JsonObject discoveryRunData = routingContext.body().asJsonObject();
-
-    eventBus.request(RUN_DISCOVERY, discoveryRunData, reply ->
-    {
-      if (reply.succeeded())
-      {
-        sendStatusCode(routingContext, 200);
-      } else
-      {
-        sendFailResponse(routingContext,500);
-      }
-    });
-  }
-    catch (Exception exception)
-    {
-      LOGGER.error(exception.getMessage(),exception.getCause());
-    }
-  }
-
-  protected void discoveryDelete(RoutingContext routingContext) {
-
     try
     {
-    LOGGER.debug("Request received for : "+ routingContext.normalizedPath());
 
-    requestEventBusCRUD(routingContext, DELETE_FROM_DISCOVERY);
+      LOGGER.debug("Request received for : " + routingContext.normalizedPath());
 
+      if (routingContext.body() == null) {
+        throw new Exception("Received null context body");
+      }
+
+      JsonObject discoveryRunData = routingContext.body().asJsonObject();
+
+      eventBus.request(RUN_DISCOVERY, discoveryRunData, reply ->
+      {
+        if (reply.succeeded()) {
+          routingContext.response().end(reply.result().body().toString());
+
+        }
+        else {
+          sendStatusCode(routingContext, 400, reply.cause().getMessage());
+        }
+      });
+    }
+    catch (Exception exception) {
+      LOGGER.error(exception.getMessage(), exception.getCause());
+    }
   }
-    catch (Exception exception)
-    {
-      LOGGER.error(exception.getMessage(),exception.getCause());
+
+  protected void discoveryDelete(RoutingContext routingContext)
+  {
+
+    try {
+      LOGGER.debug("Request received for : " + routingContext.normalizedPath());
+
+      requestEventBusCRUD(routingContext, DELETE_FROM_DISCOVERY);
+
+    }
+    catch (Exception exception) {
+      LOGGER.error(exception.getMessage(), exception.getCause());
     }
   }
 
@@ -217,22 +203,20 @@ public class ProcessRoutingRequest {
   {
     try {
 
-    LOGGER.debug("Request received for : "+ routingContext.normalizedPath());
+      LOGGER.debug("Request received for : " + routingContext.normalizedPath());
 
-    requestEventBusCRUD(routingContext, ADD_TO_DISCOVERY);
+      requestEventBusCRUD(routingContext, ADD_TO_DISCOVERY);
 
-  }catch (Exception exception)
-    {
-      LOGGER.error(exception.getMessage(),exception.getCause());
+    }
+    catch (Exception exception) {
+      LOGGER.error(exception.getMessage(), exception.getCause());
     }
   }
 
   private void requestEventBusCRUD(RoutingContext context, String address)
   {
-    try
-    {
-      if (context.body() == null)
-      {
+    try {
+      if (context.body() == null) {
         throw new Exception("Received null context body");
       }
 
@@ -241,37 +225,28 @@ public class ProcessRoutingRequest {
       eventBus.request(address, data, reply ->
       {
 
-        if (reply.succeeded())
-        {
+        if (reply.succeeded()) {
 
-          sendStatusCode(context, 200);
+          context.response().end(reply.result().body().toString());
 
-        } else
-        {
-          sendFailResponse(context,400);
+        }
+        else {
+          sendStatusCode(context, 400, reply.cause().getMessage());
         }
 
       });
 
     }
-    catch (Exception exception)
-    {
-      LOGGER.error(exception.getMessage(),exception.getCause());
+    catch (Exception exception) {
+      LOGGER.error(exception.getMessage(), exception.getCause());
     }
   }
 
-  private void sendStatusCode(RoutingContext context, int statusCode)
+  private void sendStatusCode(RoutingContext context, int statusCode, String message)
   {
-    context.response().setStatusCode(statusCode).end();
+    context.response().setStatusCode(statusCode).end(message);
 
-    LOGGER.debug("Response sent for : " + context.normalizedPath() + "  status code "+ statusCode);
-  }
-
-  private void sendFailResponse(RoutingContext context, int statusCode)
-  {
-    context.fail(statusCode);
-
-    LOGGER.debug("Context fail sent for : " + context.normalizedPath() + " status code "+ statusCode );
+    LOGGER.debug("Response sent for : " + context.normalizedPath() + "  status code " + statusCode);
   }
 
 }

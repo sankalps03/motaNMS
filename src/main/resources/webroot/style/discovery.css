@@ -409,4 +409,18 @@ body{
   opacity: 0.9;
 }
 
+.btn {
+  background-color: #010fcc;
+  color: white;
+  padding: 10px 12px;
+  text-align: center;
+  font-size: 12px;
+  margin: 4px 2px;
+  opacity: 0.6;
+  transition: 0.3s;
+  display: inline-block;
+  text-decoration: none;
+  cursor: pointer;
+}
+
 

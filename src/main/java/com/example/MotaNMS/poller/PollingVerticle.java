@@ -61,13 +61,14 @@ public class PollingVerticle extends AbstractVerticle {
     {
       Objects.requireNonNull(getDevices(SELECT_SSH_DEVICES_QUERY)).onSuccess(result ->
       {
-        if (result != null) {
-
+        if (result != null)
+        {
           JsonArray deviceDataArray = new JsonArray();
 
           JsonArray credentialArray = new JsonArray(result);
 
-          for (Object Credentialobject : credentialArray) {
+          for (Object Credentialobject : credentialArray)
+          {
             JsonObject dataObject = (JsonObject) Credentialobject;
 
             String credential = dataObject.getString("CREDENTIAL");
@@ -85,9 +86,10 @@ public class PollingVerticle extends AbstractVerticle {
 
             insertPollData(pollData);
           });
-        }else
+        }
+        else
         {
-          LOGGER.error("polling for ssh failed null device list : "+ LocalDateTime.now());
+          LOGGER.debug("polling for ssh failed null device list : "+ LocalDateTime.now());
         }
       });
     }
@@ -95,8 +97,8 @@ public class PollingVerticle extends AbstractVerticle {
     {
       Objects.requireNonNull(getDevices(SELECT_PING_DEVICES_QUERY)).onSuccess(result ->
       {
-        if (result != null) {
-
+        if (result != null)
+        {
           JsonArray deviceDataArray = new JsonArray();
 
           JsonArray credentialArray = new JsonArray(result);
@@ -117,9 +119,10 @@ public class PollingVerticle extends AbstractVerticle {
 
             insertPollData(pollData);
           });
-        }else
+        }
+        else
         {
-          LOGGER.error("polling for ping failed null device list : " + LocalDateTime.now());
+          LOGGER.debug("polling for ping failed null device list : " + LocalDateTime.now());
         }
       });
     }
@@ -132,66 +135,54 @@ public class PollingVerticle extends AbstractVerticle {
 
   private Future<String> getDevices(String query)
   {
-    Promise<String> promise = null;
+    Promise<String> promise = Promise.promise();
     try
     {
-      promise = Promise.promise();
-
-      Promise<String> finalPromise = promise;
-
       eventBus.request(SELECT, new JsonObject().put("query", query), messageAsyncResult ->
       {
         if (messageAsyncResult.succeeded())
         {
           String credentials = messageAsyncResult.result().body().toString();
 
-          finalPromise.complete(credentials);
+          promise.complete(credentials);
         }
         else
         {
-          finalPromise.fail("Device list fetch failed");
+          promise.fail("Device list fetch failed");
 
-          LOGGER.error("Device list fetch failed " + LocalDateTime.now());
+          LOGGER.debug("Device list fetch failed " + LocalDateTime.now());
         }
       });
 
     }
     catch (Exception exception)
     {
-      if (promise != null)
-      {
-        promise.fail(exception.getCause());
-      }
+      promise.fail(exception.getCause());
+
       LOGGER.error(exception.getMessage(), exception.getCause());
     }
-    if (promise != null)
-    {
-      return promise.future();
-    }else
-    {
-      return null;
-    }
+    return promise.future();
   }
 
   private void insertPollData(JsonArray pollData)
   {
     try
     {
-    eventBus.request(INSERT, pollData, reply ->
-    {
-      if (reply.succeeded())
+      eventBus.request(INSERT, pollData, reply ->
       {
-        LOGGER.debug("Polling Data Inserted Successfully :"+ LocalDateTime.now());
+        if (reply.succeeded())
+        {
+          LOGGER.debug("Polling Data Inserted Successfully :"+ LocalDateTime.now());
 
-        eventBus.send(UPDATE, new JsonObject().put("query", UPDATE_AVAILABILITY_STATUS_QUERY));
-      }
-      else
-      {
-        LOGGER.error("Polling data insert failed : "+ LocalDateTime.now());
-      }
-    });
-
-  }catch (Exception exception)
+          eventBus.send(UPDATE, new JsonObject().put("query", UPDATE_AVAILABILITY_STATUS_QUERY));
+        }
+        else
+        {
+          LOGGER.debug("Polling data insert failed : "+ LocalDateTime.now());
+        }
+      });
+    }
+    catch (Exception exception)
     {
       LOGGER.error(exception.getMessage(),exception.getCause());
     }

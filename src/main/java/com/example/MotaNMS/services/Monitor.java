@@ -45,7 +45,7 @@ public class Monitor {
         } else {
           message.fail(2, "Monitor table Data load failed");
 
-          LOGGER.error("Monitor table data load failed");
+          LOGGER.debug("Monitor table data load failed");
         }
 
       });
@@ -80,15 +80,15 @@ public class Monitor {
             LOGGER.info("Monitor table row deleted Successfully");
 
           } else {
-            message.fail(2, "Monitor table row deletion failed : row id" + id);
+            message.fail(2, "Monitor table row deletion failed : row id " + id);
 
-            LOGGER.error("row delete failed : row id " + id);
+            LOGGER.debug("row delete failed : row id " + id);
           }
         });
       } else {
         message.fail(2, "No row id to delete ");
 
-        LOGGER.error("No row id to delete");
+        LOGGER.debug("No row id to delete");
       }
     } catch (Exception exception) {
       message.fail(2, exception.getMessage());
@@ -152,8 +152,8 @@ public class Monitor {
           {
             for (int futures = 0; futures < handler.result().size(); futures++)
             {
-              if (handler.result().resultAt(futures) != null) {
-
+              if (handler.result().resultAt(futures) != null)
+              {
                 JsonArray future = handler.result().resultAt(futures);
 
                 deviceInfoData.add(future);
@@ -198,7 +198,7 @@ public class Monitor {
         {
           finalPromise.fail("Data fetch failed for: "+device);
 
-          LOGGER.error("Data fetch failed for: "+device);
+          LOGGER.debug("Data fetch failed for: "+device);
         }
       });
     }
