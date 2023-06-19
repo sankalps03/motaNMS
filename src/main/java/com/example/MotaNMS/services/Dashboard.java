@@ -25,9 +25,9 @@ public class Dashboard
 
   Vertx vertx;
 
-  protected void setEventBus(Vertx vertx1)
+  protected void init(Vertx vertxx)
   {
-    vertx = vertx1;
+    vertx = vertxx;
 
     eventBus = vertx.eventBus();
   }

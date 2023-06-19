@@ -27,13 +27,13 @@ let device = {
 
       $("#pingRow").hide();
 
-      $("#lineChartPing").hide();
+      $("#Ping Rtt Chart").hide();
 
     } else {
 
       $("#sshRow").hide();
 
-      $("#lineChartCpu").hide();
+      $("#CPU chart").hide();
 
       $("#lineChart").hide();
     }
@@ -43,11 +43,50 @@ let device = {
 
   updatePage: function (devceInfoArray) {
 
+    console.log(devceInfoArray);
+
     const availabilityData = [devceInfoArray[1][0].PERCENTAGE, 100 - devceInfoArray[1][0].PERCENTAGE];
 
     device.availabilityChart(availabilityData);
 
     if (devceInfoArray[0][0].hasOwnProperty('PING_PACKET_SENT')) {
+
+      const uniqueTimestamps = [];
+
+      const pingRttValues = [];
+
+      const pingMaxRttValues = [];
+
+      const pingMinRttValues = [];
+
+      devceInfoArray[2].forEach(item => {
+
+        const { METRICVALUE, METRICTYPE, TIMESTAMP } = item;
+
+        if (!uniqueTimestamps.includes(TIMESTAMP)) {
+
+          uniqueTimestamps.push(TIMESTAMP);
+        }
+
+        if (METRICTYPE === 'ping.packet.rtt') {
+
+          pingRttValues.push(parseFloat(METRICVALUE));
+
+        }
+        else if (METRICTYPE === 'ping.packet.maxRtt') {
+
+          pingMaxRttValues.push(parseFloat(METRICVALUE));
+
+        } else if (METRICTYPE === 'ping.packet.minRtt')
+        {
+          pingMinRttValues.push(parseFloat(METRICVALUE));
+        }
+      });
+
+      device.threeLineChart(uniqueTimestamps,pingRttValues,pingMaxRttValues,pingMinRttValues,"Ping Rtt Chart");
+
+      if (devceInfoArray[0][0].PING_PACKET_RTT != null)
+      {
 
       $("#rtt1").html(devceInfoArray[0][0].PING_PACKET_RTT);
 
@@ -56,6 +95,8 @@ let device = {
       $("#received").html((devceInfoArray[0][0].PING_PACKET_RCV).toString().split(".")[0]);
 
       $("#loss").html(devceInfoArray[0][0].PING_PACKET_LOSS);
+
+      }
 
     }
     else if (devceInfoArray[0][0].hasOwnProperty('DISK_PERCENT_USED')) {
@@ -80,11 +121,11 @@ let device = {
 
       var diskTimestamps = devceInfoArray[4].map(obj => obj.TIMESTAMP);
 
-      device.lineChart(cpuTimestamps, cpu, "lineChartCpu");
+      device.lineChart(cpuTimestamps, cpu, "CPU chart");
 
-      device.lineChart(memoryTimestamps, memory, "lineChartMemory");
+      device.lineChart(memoryTimestamps, memory, "Memory Chart");
 
-      device.lineChart(diskTimestamps, disk, "lineChartDisk");
+      device.lineChart(diskTimestamps, disk, "Disk Chart");
 
     }
 
@@ -127,11 +168,10 @@ let device = {
 
   lineChart: function (lables, data, chartName) {
 
-    console.log(lables, data)
     var chartData = {
       labels: lables,
       datasets: [{
-        label: chartName,
+        label: "Last One Hour " + chartName,
         data: data,
         borderColor: 'blue',
         fill: false
@@ -157,29 +197,26 @@ let device = {
 
   threeLineChart: function (lables, data1, data2, data3, chartName) {
 
-    console.log(lables, data)
     var chartData = {
       labels: lables,
       datasets: [{
-        label: chartName,
+        label: "AVG RTT",
         data: data1,
         borderColor: 'blue',
         fill: false
-      }],
-
-      datasets: [{
-        label: chartName,
-        data: data2,
-        borderColor: 'red',
-        fill: false
-      }],
-
-      datasets: [{
-        label: chartName,
-        data: data3,
-        borderColor: 'green',
-        fill: false
-      }]
+      },
+        {
+          label: "MAX RTT",
+          data: data2,
+          borderColor: 'red',
+          fill: false
+        },
+        {
+          label: "MIN RTT",
+          data: data3,
+          borderColor: 'green',
+          fill: false
+        }]
     };
 
     let chartOptions = {

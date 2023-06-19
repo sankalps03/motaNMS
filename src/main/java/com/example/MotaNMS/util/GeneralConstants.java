@@ -4,6 +4,12 @@ public class GeneralConstants {
 
   public static final int HTTP_PORT = 8080;
 
+  public static final int PROCESS_TIMEOUT_SECONDS = 60;
+
+  public static final int SSH_PERIODIC_TIME = 5 * 60 * 1000;
+
+  public static final int PING_PERIODIC_TIME = 2 * 60 * 1000;
+
   public static final String URL ="jdbc:h2:~/test";
 
   public static final String USER ="sa";

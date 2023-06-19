@@ -6,6 +6,8 @@ import io.vertx.core.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.example.MotaNMS.util.GeneralConstants.*;
+
 public class ServiceVerticle extends AbstractVerticle
 {
 
@@ -27,36 +29,29 @@ public class ServiceVerticle extends AbstractVerticle
 
       Dashboard dashboard = new Dashboard();
 
-      discovery.setEventBus(getVertx());
+      discovery.init(getVertx());
 
-      monitor.setEventBus(getVertx());
+      monitor.init(getVertx());
 
-      dashboard.setEventBus(getVertx());
+      dashboard.init(getVertx());
 
-      eventBus.localConsumer("discoveryAdd").handler(discovery::add);
+      eventBus.localConsumer(ADD_TO_DISCOVERY).handler(discovery::add);
 
-      eventBus.localConsumer("discoveryDelete").handler(discovery::delete);
+      eventBus.localConsumer(DELETE_FROM_DISCOVERY).handler(discovery::delete);
 
-      eventBus.localConsumer("discoveryRun").handler(discovery::run);
+      eventBus.localConsumer(RUN_DISCOVERY).handler(discovery::run);
 
-      eventBus.localConsumer("discoveryProvision").handler(discovery::provision);
+      eventBus.localConsumer(PROVISION_DEVICE).handler(discovery::provision);
 
-      eventBus.localConsumer("discoveryLoad").handler(discovery::load);
+      eventBus.localConsumer(LOAD_DISCOVERY_TABLE).handler(discovery::load);
 
-      eventBus.localConsumer("monitorLoad").handler(monitor::load);
+      eventBus.localConsumer(LOAD_MONITOR_TABLE).handler(monitor::load);
 
-      eventBus.localConsumer("monitorDelete").handler(monitor::delete);
+      eventBus.localConsumer(DELETE_FROM_MONITOR).handler(monitor::delete);
 
-      eventBus.localConsumer("monitorLoadDevice").handler(monitor::loadDeviceData);
+      eventBus.localConsumer(LOAD_MONITOR_DEVICE_DATA).handler(monitor::loadDeviceData);
 
-      eventBus.localConsumer("dashboardLoad",handler -> dashboard.getDashboardData());
-
-      long timerId = vertx.setPeriodic(5*60*1000, Handler -> dashboard.getDashboardData());
-
-      if(timerId == -1)
-      {
-        throw new Exception("Set periodic startup for dashboard failed id : "+ timerId);
-      }
+      eventBus.localConsumer(LOAD_DASHBOARD_DATA,handler -> dashboard.getDashboardData());
 
       startPromise.complete();
 

@@ -2,21 +2,24 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width initial-scale=1.0">
-    <title>motaNMS</title>
-    <!-- GLOBAL MAINLY STYLES-->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
-    <link href="@icon/themify-icons/themify-icons.css" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1.0">
+  <title>motaNMS</title>
+  <link rel="shortcut icon" href="motaNMS.ico" type="image/x-icon">
+  <!-- GLOBAL MAINLY STYLES-->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+  <link href="@icon/themify-icons/themify-icons.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css?family=PT+Sans:400" rel="stylesheet">
-    <link href="./style/main.min.css" rel="stylesheet" />
+  <link href="./style/main.min.css" rel="stylesheet"/>
 
-<!--  discovery page-->
-<!--  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js">-->
+  <!--  discovery page-->
+  <!--  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js">-->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.10.14/css/jquery.dataTables.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;1,800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;1,800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="style/discovery.css">
   <link rel="stylesheet" href="style/devicePage.css">
   <link rel="stylesheet" href="style/notification.css">
@@ -29,13 +32,15 @@
   </div>
   <!-- END PAGA BACKDROPS-->
 
-<!--  javascript-->
+  <!--  javascript-->
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"
+          type="text/javascript"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" type="text/javascript"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/metisMenu/3.0.7/metisMenu.min.js" type="text/javascript"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-slimScroll/1.3.8/jquery.slimscroll.min.js" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-slimScroll/1.3.8/jquery.slimscroll.min.js"
+          type="text/javascript"></script>
   <!-- PAGE LEVEL PLUGINS-->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.0/chart.min.js" type="text/javascript"></script>
   <script src="https://unpkg.com/jvectormap@2.0.3/jquery-jvectormap.min.js" type="text/javascript"></script>
@@ -43,9 +48,9 @@
   <script src="scripts/app.min.js" type="text/javascript"></script>
   <!-- PAGE LEVEL SCRIPTS-->
 
-<!--  Discovery js-->
+  <!--  Discovery js-->
   <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-<!--  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>-->
+  <!--  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>-->
   <script src="https://cdn.datatables.net/1.10.14/js/jquery.dataTables.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/respond.js/1.3.0/respond.min.js"></script>
@@ -63,195 +68,197 @@
 </head>
 
 <body class="fixed-navbar">
-    <div class="page-wrapper">
-        <!-- START HEADER-->
-        <header class="header">
-            <div class="page-brand">
-                <a class="link" href="motaNMS.html">
-                  <span><img src="motaNMS.png" width="45px" /></span>
-                    <span class="brand">mota
+<div class="page-wrapper">
+  <!-- START HEADER-->
+  <header class="header">
+    <div class="page-brand">
+      <a class="link" href="motaNMS.html">
+        <span><img src="motaNMS.png" width="45px"/></span>
+        <span class="brand">mota
                         <span class="brand-tip">NMS</span>
                     </span>
-                </a>
-            </div>
-            <div class="flexbox flex-1">
-                <!-- START TOP-LEFT TOOLBAR-->
-                <ul class="nav navbar-toolbar">
-                    <li>
-                        <a class="nav-link sidebar-toggler js-sidebar-toggler"><i class="ti-menu"></i></a>
-                    </li>
-                  <li>
-                    <h2 id = "header" class="m-b-5 font-strong">Dashboard</h2>
-                  </li>
-                  <li><div id="notificationContainer"></div></li>
-                </ul>
-                <!-- END TOP-LEFT TOOLBAR-->
-                <!-- START TOP-RIGHT TOOLBAR-->
-              <ul class="nav navbar-toolbar">
-                    <li class="dropdown dropdown-user">
-                      <a class="dropdown-item" href="/logout"><i class="fa fa-power-off"></i>Logout</a>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                        </ul>
-                    </li>
-                </ul>
-              <!-- END TOP-RIGHT TOOLBAR-->
-            </div>
-        </header>
-      <!-- END HEADER-->
-        <!-- START SIDEBAR-->
-        <nav class="page-sidebar" id="sidebar">
-            <div id="sidebar-collapse">
-                <ul class="side-menu metismenu">
-                    <li>
-                        <a class="active" href="motaNMS.html"><i class="sidebar-item-icon fa fa-th-large"></i>
-                            <span class="nav-label">Dashboard</span>
-                        </a>
-                    </li>
-                  <li>
-                    <a class="active" onclick="discovery.loadDiscovery()"><i class="sidebar-item-icon fa fa-binoculars"></i>
-                      <span class="nav-label">Discovery</span>
-                    </a>
-                  </li>
-                  <li>
-                  <a class="active" onclick="monitor.loadMonitor()"><i class="sidebar-item-icon fa fa-desktop"></i>
-                    <span class="nav-label">Monitor</span>
-                  </a>
-                </li>
-                </ul>
-            </div>
-        </nav>
-        <!-- END SIDEBAR-->
-        <div  id = "body"class="content-wrapper">
-            <!-- START PAGE CONTENT-->
-            <div class="page-content fade-in-up">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-success color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 id = "up" class="m-b-5 font-strong">0</h2>
-                                <div class="m-b-5">UP DEVICES</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-info color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 id = "total" class="m-b-5 font-strong">0</h2>
-                                <div class="m-b-5">TOTAL DEVICES</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-warning color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 id ="unknown" class="m-b-5 font-strong">0</h2>
-                                <div class="m-b-5">UNKNOWN DEVICES</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-danger color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 id="down" class="m-b-5 font-strong">0</h2>
-                                <div class="m-b-5">DOWN DEVICES</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-7">
-                    <div class="ibox">
-                      <div class="ibox-head">
-                        <div class="ibox-title">Top 5 CPU Usage %</div>
-                      </div>
-                      <div class="ibox-body">
-                        <table id = "topCpuUsage" class="table table-striped m-t-20 visitors-table">
-                          <thead>
-                          <tr>
-                            <th>Ip Address</th>
-                            <th>Cpu %</th>
-                          </tr>
-                          </thead>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-lg-5">
-                    <div class="ibox">
-                      <div class="ibox-head">
-                        <div class="ibox-title">Top 5 Disk Usage %</div>
-                      </div>
-                      <div class="ibox-body">
-                        <table  id = "topDiskUsage" class="table table-striped m-t-20 visitors-table">
-                          <thead>
-                          <tr>
-                            <th>Ip Address</th>
-                            <th>Disk %</th>
-                          </tr>
-                          </thead>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-5">
-                    <div class="ibox">
-                      <div class="ibox-head">
-                        <div class="ibox-title">Top 5 RTT</div>
-                      </div>
-                      <div class="ibox-body">
-                        <table  id ="topRtt" class="table table-striped m-t-20 visitors-table">
-                          <thead>
-                          <tr>
-                            <th>Ip Address</th>
-                            <th>RTT (ms)</th>
-                          </tr>
-                          </thead>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-lg-7">
-                    <div class="ibox">
-                      <div class="ibox-head">
-                        <div class="ibox-title">Top 5 Memory Usage %</div>
-                      </div>
-                      <div class="ibox-body">
-                        <table id = "topMemoryUsage" class="table table-striped m-t-20 visitors-table">
-                          <thead>
-                          <tr>
-                            <th>Ip Address</th>
-                            <th>Memory %</th>
-                          </tr>
-                          </thead>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <style>
-                    .visitors-table tbody tr td:last-child {
-                        display: flex;
-                        align-items: center;
-                    }
-
-                    .visitors-table .progress {
-                        flex: 1;
-                    }
-
-                    .visitors-table .progress-parcent {
-                        text-align: right;
-                        margin-left: 10px;
-                    }
-                </style>
-            </div>
-            <!-- END PAGE CONTENT-->
-            <footer class="page-footer">
-                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
-            </footer>
-        </div>
+      </a>
     </div>
+    <div class="flexbox flex-1">
+      <!-- START TOP-LEFT TOOLBAR-->
+      <ul class="nav navbar-toolbar">
+        <li>
+          <a class="nav-link sidebar-toggler js-sidebar-toggler"><i class="ti-menu"></i></a>
+        </li>
+        <li>
+          <h2 id="header" class="m-b-5 font-strong">Dashboard</h2>
+        </li>
+        <li>
+          <div id="notificationContainer"></div>
+        </li>
+      </ul>
+      <!-- END TOP-LEFT TOOLBAR-->
+      <!-- START TOP-RIGHT TOOLBAR-->
+      <ul class="nav navbar-toolbar">
+        <li class="dropdown dropdown-user">
+          <a class="dropdown-item" href="/logout"><i class="fa fa-power-off"></i>Logout</a>
+          <ul class="dropdown-menu dropdown-menu-right">
+          </ul>
+        </li>
+      </ul>
+      <!-- END TOP-RIGHT TOOLBAR-->
+    </div>
+  </header>
+  <!-- END HEADER-->
+  <!-- START SIDEBAR-->
+  <nav class="page-sidebar" id="sidebar">
+    <div id="sidebar-collapse">
+      <ul class="side-menu metismenu">
+        <li>
+          <a class="active" href="motaNMS.html"><i class="sidebar-item-icon fa fa-th-large"></i>
+            <span class="nav-label">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a class="active" onclick="discovery.loadDiscovery()"><i class="sidebar-item-icon fa fa-binoculars"></i>
+            <span class="nav-label">Discovery</span>
+          </a>
+        </li>
+        <li>
+          <a class="active" onclick="monitor.loadMonitor()"><i class="sidebar-item-icon fa fa-desktop"></i>
+            <span class="nav-label">Monitor</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <!-- END SIDEBAR-->
+  <div id="body" class="content-wrapper">
+    <!-- START PAGE CONTENT-->
+    <div class="page-content fade-in-up">
+      <div class="row">
+        <div class="col-lg-3 col-md-6">
+          <div class="ibox bg-success color-white widget-stat">
+            <div class="ibox-body">
+              <h2 id="up" class="m-b-5 font-strong">0</h2>
+              <div class="m-b-5">UP DEVICES</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="ibox bg-info color-white widget-stat">
+            <div class="ibox-body">
+              <h2 id="total" class="m-b-5 font-strong">0</h2>
+              <div class="m-b-5">TOTAL DEVICES</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="ibox bg-warning color-white widget-stat">
+            <div class="ibox-body">
+              <h2 id="unknown" class="m-b-5 font-strong">0</h2>
+              <div class="m-b-5">UNKNOWN DEVICES</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="ibox bg-danger color-white widget-stat">
+            <div class="ibox-body">
+              <h2 id="down" class="m-b-5 font-strong">0</h2>
+              <div class="m-b-5">DOWN DEVICES</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-7">
+          <div class="ibox">
+            <div class="ibox-head">
+              <div class="ibox-title">Top 5 CPU Usage %</div>
+            </div>
+            <div class="ibox-body">
+              <table id="topCpuUsage" class="table table-striped m-t-20 visitors-table">
+                <thead>
+                <tr>
+                  <th>Ip Address</th>
+                  <th>Cpu %</th>
+                </tr>
+                </thead>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="ibox">
+            <div class="ibox-head">
+              <div class="ibox-title">Top 5 Disk Usage %</div>
+            </div>
+            <div class="ibox-body">
+              <table id="topDiskUsage" class="table table-striped m-t-20 visitors-table">
+                <thead>
+                <tr>
+                  <th>Ip Address</th>
+                  <th>Disk %</th>
+                </tr>
+                </thead>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-5">
+          <div class="ibox">
+            <div class="ibox-head">
+              <div class="ibox-title">Top 5 RTT</div>
+            </div>
+            <div class="ibox-body">
+              <table id="topRtt" class="table table-striped m-t-20 visitors-table">
+                <thead>
+                <tr>
+                  <th>Ip Address</th>
+                  <th>RTT (ms)</th>
+                </tr>
+                </thead>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-7">
+          <div class="ibox">
+            <div class="ibox-head">
+              <div class="ibox-title">Top 5 Memory Usage %</div>
+            </div>
+            <div class="ibox-body">
+              <table id="topMemoryUsage" class="table table-striped m-t-20 visitors-table">
+                <thead>
+                <tr>
+                  <th>Ip Address</th>
+                  <th>Memory %</th>
+                </tr>
+                </thead>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <style>
+        .visitors-table tbody tr td:last-child {
+          display: flex;
+          align-items: center;
+        }
+
+        .visitors-table .progress {
+          flex: 1;
+        }
+
+        .visitors-table .progress-parcent {
+          text-align: right;
+          margin-left: 10px;
+        }
+      </style>
+    </div>
+    <!-- END PAGE CONTENT-->
+    <footer class="page-footer">
+      <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+    </footer>
+  </div>
+</div>
 
 </body>
 

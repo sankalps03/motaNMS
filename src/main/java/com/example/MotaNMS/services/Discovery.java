@@ -18,7 +18,7 @@ public class Discovery {
 
   Vertx vertx;
 
-  protected void setEventBus(Vertx vertxx) {
+  protected void init(Vertx vertxx) {
 
     vertx = vertxx;
 
@@ -78,7 +78,7 @@ public class Discovery {
             LOGGER.debug("Added to discovery table : " + ip);
 
           } else {
-            message.fail(2, reply.cause().getMessage() + ip);
+            message.fail(2, "insert failed for : " + ip);
 
             LOGGER.debug("insert failed for : " + ip);
           }
@@ -249,7 +249,7 @@ public class Discovery {
           }
           else
           {
-            message.fail(2, reply.cause().getMessage()+ id);
+            message.fail(2, "provisioning failed for :row id "+ id);
 
             LOGGER.debug("provisioning failed for :row id " +id);
           }

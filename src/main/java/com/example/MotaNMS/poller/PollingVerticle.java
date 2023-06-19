@@ -9,6 +9,7 @@ import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import static com.example.MotaNMS.util.GeneralConstants.*;
 import static com.example.MotaNMS.util.QueryConstants.*;
@@ -26,14 +27,14 @@ public class PollingVerticle extends AbstractVerticle {
     {
       eventBus = vertx.eventBus();
 
-      long pingTimerId = vertx.setPeriodic(2 * 60 * 1000, pingPoll -> pollData("ping"));
+      long pingTimerId = vertx.setPeriodic(PING_PERIODIC_TIME, pingPoll -> pollData("ping"));
 
       if (pingTimerId == -1)
       {
         throw new Exception("Set periodic startup for ping failed id : " + pingTimerId);
       }
 
-      long sshTimerId = vertx.setPeriodic(5 * 60 * 1000, pingPoll -> pollData("ssh"));
+      long sshTimerId = vertx.setPeriodic(SSH_PERIODIC_TIME, pingPoll -> pollData("ssh"));
 
       if (sshTimerId == -1)
       {
@@ -82,6 +83,8 @@ public class PollingVerticle extends AbstractVerticle {
           }
           vertx.executeBlocking(pollSsh ->
           {
+            LOGGER.debug("Polling Started for ssh time :" +LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) );
+
             JsonArray pollData = runPluginPolling(deviceDataArray);
 
             insertPollData(pollData);
@@ -115,6 +118,8 @@ public class PollingVerticle extends AbstractVerticle {
           }
           vertx.executeBlocking(pollPing ->
           {
+            LOGGER.debug("Polling Started for ping time :" +LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) );
+
             JsonArray pollData = runPluginPolling(deviceDataArray);
 
             insertPollData(pollData);
@@ -122,7 +127,7 @@ public class PollingVerticle extends AbstractVerticle {
         }
         else
         {
-          LOGGER.debug("polling for ping failed null device list : " + LocalDateTime.now());
+          LOGGER.debug("polling for ping failed null device list : " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         }
       });
     }
@@ -150,7 +155,7 @@ public class PollingVerticle extends AbstractVerticle {
         {
           promise.fail("Device list fetch failed");
 
-          LOGGER.debug("Device list fetch failed " + LocalDateTime.now());
+          LOGGER.debug("Device list fetch failed ");
         }
       });
 
@@ -172,13 +177,15 @@ public class PollingVerticle extends AbstractVerticle {
       {
         if (reply.succeeded())
         {
-          LOGGER.debug("Polling Data Inserted Successfully :"+ LocalDateTime.now());
+          LOGGER.debug("Polling Data Inserted Successfully :"+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
           eventBus.send(UPDATE, new JsonObject().put("query", UPDATE_AVAILABILITY_STATUS_QUERY));
+
+          eventBus.send(LOAD_DASHBOARD_DATA,"updateDashboard");
         }
         else
         {
-          LOGGER.debug("Polling data insert failed : "+ LocalDateTime.now());
+          LOGGER.debug("Polling data insert failed : "+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         }
       });
     }

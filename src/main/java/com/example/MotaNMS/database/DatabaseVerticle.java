@@ -199,7 +199,7 @@ public class DatabaseVerticle extends AbstractVerticle {
           preparedSelectStatement.setString(2, executionData.getString("ip"));
 
         }
-        else if (query.equals(LAST_24_HOUR_AVAILABILITY_QUERY) || query.equals(LAST_1_HOUR_CPU_USED_QUERY) || query.equals(LAST_1_HOUR_DISK_USED_QUERY) || query.equals(LAST_1_HOUR_MEMORY_USED_QUERY))
+        else if (query.equals(LAST_24_HOUR_AVAILABILITY_QUERY) || query.equals(LAST_1_HOUR_CPU_USED_QUERY) || query.equals(LAST_1_HOUR_DISK_USED_QUERY) || query.equals(LAST_1_HOUR_MEMORY_USED_QUERY) || query.equals(LAST_1_HOUR_ALL_RTT))
         {
 
           preparedSelectStatement.setString(1, executionData.getString("ip"));

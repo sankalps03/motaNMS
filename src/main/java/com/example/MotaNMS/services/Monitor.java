@@ -22,8 +22,10 @@ public class Monitor {
 
   private final Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
 
-  protected void setEventBus(Vertx vertx1) {
-    vertx = vertx1;
+  protected void init(Vertx vertxInstance)
+  {
+
+    vertx = vertxInstance;
 
     eventBus = vertx.eventBus();
 
@@ -110,16 +112,11 @@ public class Monitor {
 
       JsonObject deviceIp = (JsonObject) message.body();
 
-      String availabilityQuery = LAST_24_HOUR_AVAILABILITY_QUERY;
-
-      String query;
-
       if (deviceIp.getString("type").equals("ssh"))
       {
-        query = SSH_LATEST_DATA_QUERY;
 
-        CompositeFuture.join(getDeviceInfoData(deviceIp.put("query", query)),
-          getDeviceInfoData(deviceIp.put("query", availabilityQuery)),
+        CompositeFuture.join(getDeviceInfoData(deviceIp.put("query", SSH_LATEST_DATA_QUERY)),
+          getDeviceInfoData(deviceIp.put("query", LAST_24_HOUR_AVAILABILITY_QUERY)),
           getDeviceInfoData(deviceIp.put("query", LAST_1_HOUR_CPU_USED_QUERY)),
           getDeviceInfoData(deviceIp.put("query", LAST_1_HOUR_MEMORY_USED_QUERY)),
           getDeviceInfoData(deviceIp.put("query", LAST_1_HOUR_DISK_USED_QUERY)))
@@ -142,10 +139,9 @@ public class Monitor {
       }
       else
       {
-        query = PING_LATEST_DATA_QUERY;
-
-        CompositeFuture.join(getDeviceInfoData(deviceIp.put("query", query)),
-          getDeviceInfoData(deviceIp.put("query", availabilityQuery)))
+        CompositeFuture.join(getDeviceInfoData(deviceIp.put("query", PING_LATEST_DATA_QUERY)),
+          getDeviceInfoData(deviceIp.put("query", LAST_24_HOUR_AVAILABILITY_QUERY)),
+            getDeviceInfoData(deviceIp.put("query", LAST_1_HOUR_ALL_RTT)))
           .onComplete(handler ->
           {
           if (handler.succeeded())

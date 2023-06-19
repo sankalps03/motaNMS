@@ -1,13 +1,22 @@
 package com.example.MotaNMS.util;
 
+import com.example.MotaNMS.services.Dashboard;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Base64;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
+
+import static com.example.MotaNMS.util.GeneralConstants.PROCESS_TIMEOUT_SECONDS;
 
 public class Utilities {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(Utilities.class);
 
   public static JsonArray runPluginPolling(JsonArray data)
   {
@@ -24,6 +33,13 @@ public class Utilities {
     try
     {
       process = new ProcessBuilder("src/main/java/com/example/MotaNMS/plugins/init.exe",dataEncoder).start();
+
+      if (!process.waitFor(PROCESS_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+
+        process.destroy();
+
+        throw new InterruptedException("Process has been interrupted because of timeout (" + PROCESS_TIMEOUT_SECONDS + "seconds). ");
+      }
 
       reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
@@ -57,9 +73,9 @@ public class Utilities {
         }
       }
       }
-    } catch (Exception e) {
+    } catch (Exception exception) {
 
-      e.printStackTrace();
+      LOGGER.error(exception.getMessage(),exception.getCause());
 
     } finally {
 
@@ -69,12 +85,14 @@ public class Utilities {
 
           reader.close();
 
-        }catch (Exception e){
+        }catch (Exception exception){
 
+          LOGGER.error(exception.getMessage(),exception.getCause());
         }
         process.destroy();
       }
     }
+    System.out.println(dataArray);
     return dataArray;
   }
 }
