@@ -44,14 +44,16 @@ public class Monitor {
 
           LOGGER.debug("Monitor table data load success");
 
-        } else {
+        }
+        else {
           message.fail(2, "Monitor table Data load failed");
 
           LOGGER.debug("Monitor table data load failed");
         }
 
       });
-    } catch (Exception exception) {
+    }
+    catch (Exception exception) {
 
       message.fail(2, exception.getMessage());
 
@@ -81,18 +83,23 @@ public class Monitor {
 
             LOGGER.info("Monitor table row deleted Successfully");
 
-          } else {
+          }
+          else
+          {
             message.fail(2, "Monitor table row deletion failed : row id " + id);
 
             LOGGER.debug("row delete failed : row id " + id);
           }
         });
-      } else {
+      }
+      else
+      {
         message.fail(2, "No row id to delete ");
 
         LOGGER.debug("No row id to delete");
       }
-    } catch (Exception exception) {
+    }
+    catch (Exception exception) {
       message.fail(2, exception.getMessage());
 
       LOGGER.error(exception.getMessage(), exception.getCause());
@@ -102,12 +109,12 @@ public class Monitor {
   protected void loadDeviceData(Message<Object> message)
   {
 
-    try
-    {
+    try {
       if (message.body() == null) {
 
         throw new Exception("Message body is null");
       }
+
       List<JsonArray> deviceInfoData = new ArrayList<>();
 
       JsonObject deviceIp = (JsonObject) message.body();
@@ -170,14 +177,10 @@ public class Monitor {
 
   private Future<JsonArray> getDeviceInfoData(JsonObject device) {
 
-    Promise<JsonArray> promise = null;
+    Promise<JsonArray> promise = Promise.promise();
 
     try
     {
-      promise = Promise.promise();
-
-      Promise<JsonArray> finalPromise = promise;
-
       eventBus.request(SELECT, device, messageAsyncResult -> {
 
         if (messageAsyncResult.succeeded()) {
@@ -186,13 +189,13 @@ public class Monitor {
 
           JsonArray deviceInfoArray = new JsonArray(deviceInfo);
 
-          finalPromise.complete(deviceInfoArray);
+          promise.complete(deviceInfoArray);
 
           LOGGER.debug("Data fetch successful for :" + device);
         }
         else
         {
-          finalPromise.fail("Data fetch failed for: "+device);
+          promise.fail("Data fetch failed for: "+device);
 
           LOGGER.debug("Data fetch failed for: "+device);
         }
@@ -200,19 +203,10 @@ public class Monitor {
     }
     catch (Exception exception)
     {
-      if (promise != null)
-      {
-        promise.fail(exception.getCause());
-      }
+      promise.fail(exception.getCause());
+
       LOGGER.error(exception.getMessage(),exception.getCause());
     }
-    if (promise != null)
-    {
-      return promise.future();
-    }
-    else
-    {
-    return null;
-    }
+    return promise.future();
   }
 }

@@ -27,13 +27,13 @@ let device = {
 
       $("#pingRow").hide();
 
-      $("#Ping Rtt Chart").hide();
+      $("#lineChartPingRtt").hide();
 
     } else {
 
       $("#sshRow").hide();
 
-      $("#CPU chart").hide();
+      $("#lineChartCpu").hide();
 
       $("#lineChart").hide();
     }
@@ -43,71 +43,123 @@ let device = {
 
   updatePage: function (devceInfoArray) {
 
+
     console.log(devceInfoArray);
 
-    const availabilityData = [devceInfoArray[1][0].PERCENTAGE, 100 - devceInfoArray[1][0].PERCENTAGE];
+    devceInfoArray.forEach(function (jsonArray) {
 
-    device.availabilityChart(availabilityData);
+      if (jsonArray && jsonArray.length > 0) {
 
-    if (devceInfoArray[0][0].hasOwnProperty('PING_PACKET_SENT')) {
+        switch (true) {
+          case jsonArray[0].hasOwnProperty("PERCENTAGE"):
 
-      const uniqueTimestamps = [];
+            const availabilityData = [devceInfoArray[1][0].PERCENTAGE, 100 - devceInfoArray[1][0].PERCENTAGE];
 
-      const pingRttValues = [];
+            device.availabilityChart(availabilityData);
 
-      const pingMaxRttValues = [];
+            break;
 
-      const pingMinRttValues = [];
+          case ((jsonArray[0].hasOwnProperty("TIMESTAMP")) && (jsonArray[0].hasOwnProperty("METRICTYPE")) && (jsonArray[0].METRICTYPE).toString().includes("ping")):
 
-      devceInfoArray[2].forEach(item => {
+            const uniqueTimestamps = [];
 
-        const { METRICVALUE, METRICTYPE, TIMESTAMP } = item;
+            const pingRttValues = [];
 
-        if (!uniqueTimestamps.includes(TIMESTAMP)) {
+            const pingMaxRttValues = [];
 
-          uniqueTimestamps.push(TIMESTAMP);
+            const pingMinRttValues = [];
+
+            devceInfoArray[2].forEach(item => {
+
+              const {METRICVALUE, METRICTYPE, TIMESTAMP} = item;
+
+              if (!uniqueTimestamps.includes(TIMESTAMP)) {
+
+                uniqueTimestamps.push(TIMESTAMP);
+              }
+
+              if (METRICTYPE === 'ping.packet.rtt') {
+
+                pingRttValues.push(parseFloat(METRICVALUE));
+
+              } else if (METRICTYPE === 'ping.packet.maxRtt') {
+
+                pingMaxRttValues.push(parseFloat(METRICVALUE));
+
+              } else if (METRICTYPE === 'ping.packet.minRtt') {
+                pingMinRttValues.push(parseFloat(METRICVALUE));
+              }
+            });
+
+            device.threeLineChart(uniqueTimestamps, pingRttValues, pingMaxRttValues, pingMinRttValues, "Ping Rtt Chart");
+
+            break;
+
+          case (jsonArray[0].hasOwnProperty('PING_PACKET_SENT')):
+
+            if (jsonArray[0].PING_PACKET_RTT != null) {
+
+              $("#rtt1").html(jsonArray[0].PING_PACKET_RTT);
+
+              $("#sent").html((jsonArray[0].PING_PACKET_SENT).toString().split(".")[0]);
+
+              $("#received").html((jsonArray[0].PING_PACKET_RCV).toString().split(".")[0]);
+
+              $("#loss").html(jsonArray[0].PING_PACKET_LOSS);
+
+            }
+
+            break;
+
+          case ((jsonArray[0].hasOwnProperty("METRICTYPE")) && (((jsonArray[1].METRICTYPE).toString().includes("cpu")) || ((jsonArray[1].METRICTYPE).toString().includes("memory" )) || ((jsonArray[1].METRICTYPE).toString().includes("disk")))):
+
+            jsonArray.forEach(item => {
+
+              switch (true) {
+
+                case item.METRICTYPE === "ping.packet.rtt":
+
+                  $("#rtt").html(item.METRICVALUE);
+
+                  break;
+
+                case item.METRICTYPE === "cpu.percent.total":
+
+                  $("#cpu").html(item.METRICVALUE);
+
+                  break;
+                case item.METRICTYPE === "disk.percent.used":
+
+                  $("#disk").html(item.METRICVALUE);
+
+                  break;
+                case item.METRICTYPE === "memory.percent.used":
+
+                  $("#memory").html(item.METRICVALUE);
+
+                  break;
+
+              }
+            });
+
+            break;
+
+          case jsonArray[0].hasOwnProperty("TOTAL_COUNT"):
+
+            $("#up").html(jsonArray[0].UP_COUNT);
+
+            $("#down").html(jsonArray[0].DOWN_COUNT);
+
+            $("#unknown").html(jsonArray[0].UNKNOWN_COUNT);
+
+            $("#total").html(jsonArray[0].TOTAL_COUNT);
+
+            break;
+
         }
-
-        if (METRICTYPE === 'ping.packet.rtt') {
-
-          pingRttValues.push(parseFloat(METRICVALUE));
-
-        }
-        else if (METRICTYPE === 'ping.packet.maxRtt') {
-
-          pingMaxRttValues.push(parseFloat(METRICVALUE));
-
-        } else if (METRICTYPE === 'ping.packet.minRtt')
-        {
-          pingMinRttValues.push(parseFloat(METRICVALUE));
-        }
-      });
-
-      device.threeLineChart(uniqueTimestamps,pingRttValues,pingMaxRttValues,pingMinRttValues,"Ping Rtt Chart");
-
-      if (devceInfoArray[0][0].PING_PACKET_RTT != null)
-      {
-
-      $("#rtt1").html(devceInfoArray[0][0].PING_PACKET_RTT);
-
-      $("#sent").html((devceInfoArray[0][0].PING_PACKET_SENT).toString().split(".")[0]);
-
-      $("#received").html((devceInfoArray[0][0].PING_PACKET_RCV).toString().split(".")[0]);
-
-      $("#loss").html(devceInfoArray[0][0].PING_PACKET_LOSS);
-
       }
-
-    }
-    else if (devceInfoArray[0][0].hasOwnProperty('DISK_PERCENT_USED')) {
-
-      $("#cpu").html(devceInfoArray[0][0].CPU_PERCENT_TOTAL);
-
-      $("#memory").html(devceInfoArray[0][0].MEMORY_PERCENT_USED);
-
-      $("#disk").html(devceInfoArray[0][0].DISK_PERCENT_USED);
-
-      $("#rtt").html(devceInfoArray[0][0].PING_PACKET_RTT);
+    });
+    if (devceInfoArray[0][0] != null && !devceInfoArray[0][0].hasOwnProperty('PING_PACKET_SENT')) {
 
       var cpu = devceInfoArray[2].map(obj => obj.METRICVALUE);
 
@@ -128,7 +180,6 @@ let device = {
       device.lineChart(diskTimestamps, disk, "Disk Chart");
 
     }
-
   },
 
   availabilityChart: function (availabilityData) {

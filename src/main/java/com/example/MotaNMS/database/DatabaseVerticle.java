@@ -191,15 +191,7 @@ public class DatabaseVerticle extends AbstractVerticle {
           preparedSelectStatement.setInt(1,Integer.parseInt(executionData.getString("id")));
 
         }
-        else if((query.equals(SSH_LATEST_DATA_QUERY)) ||(query.equals(PING_LATEST_DATA_QUERY)))
-        {
-
-          preparedSelectStatement.setString(1, executionData.getString("ip"));
-
-          preparedSelectStatement.setString(2, executionData.getString("ip"));
-
-        }
-        else if (query.equals(LAST_24_HOUR_AVAILABILITY_QUERY) || query.equals(LAST_1_HOUR_CPU_USED_QUERY) || query.equals(LAST_1_HOUR_DISK_USED_QUERY) || query.equals(LAST_1_HOUR_MEMORY_USED_QUERY) || query.equals(LAST_1_HOUR_ALL_RTT))
+        else if ((query.equals(SSH_LATEST_DATA_QUERY)) || (query.equals(PING_LATEST_DATA_QUERY)) ||query.equals(LAST_24_HOUR_AVAILABILITY_QUERY) || query.equals(LAST_1_HOUR_CPU_USED_QUERY) || query.equals(LAST_1_HOUR_DISK_USED_QUERY) || query.equals(LAST_1_HOUR_MEMORY_USED_QUERY) || query.equals(LAST_1_HOUR_ALL_RTT))
         {
 
           preparedSelectStatement.setString(1, executionData.getString("ip"));

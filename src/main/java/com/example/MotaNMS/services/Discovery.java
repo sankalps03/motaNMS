@@ -78,7 +78,15 @@ public class Discovery {
             LOGGER.debug("Added to discovery table : " + ip);
 
           } else {
+
+            if (reply.cause().getMessage().contains("Unique index or primary key violation")){
+
+              message.fail(2,"Device is already added to discovery table with type "+type);
+
+            }else
+            {
             message.fail(2, "insert failed for : " + ip);
+            }
 
             LOGGER.debug("insert failed for : " + ip);
           }
@@ -249,7 +257,14 @@ public class Discovery {
           }
           else
           {
+            if (reply.cause().getMessage().contains("Unique index or primary key violation")){
+
+              message.fail(2,"Device is already Provisioned");
+
+            }else
+            {
             message.fail(2, "provisioning failed for :row id "+ id);
+            }
 
             LOGGER.debug("provisioning failed for :row id " +id);
           }
