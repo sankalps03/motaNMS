@@ -1,8 +1,6 @@
 var api = {
   ajaxCall: function (result) {
 
-    console.log("ajax call")
-
     $.ajax({
       type: result.type,
 
@@ -18,16 +16,12 @@ var api = {
 
         if (result.hasOwnProperty('successCallback')) {
 
-          console.log(data)
-
           result.successCallback(data);
         }
       },
       error: function (data) {
 
         if (result.hasOwnProperty('failCallback')) {
-
-          console.log(data)
 
           result.failCallback(data);
         }

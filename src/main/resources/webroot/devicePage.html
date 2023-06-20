@@ -6,23 +6,23 @@
 
   <link rel="stylesheet" href="style/devicePage.css">
 
-  <script src="scripts/devicePage.js"></script>
+  <script src="scripts/DeviceInfo.js"></script>
 
 </head>
 <body>
 
 <div class="page-content fade-in-up">
-  <div id = "rowInfo" class="row"></div>
+  <div id="rowInfo" class="row"></div>
   <div class="grid">
-    <div id ="deviceIp" class="box font-strong"></div>
-    <div id ="deviceType"class="box font-strong"></div>
-    <div id ="deviceStatus"class="box font-strong"></div>
+    <div id="deviceIp" class="box font-strong"></div>
+    <div id="deviceType" class="box font-strong"></div>
+    <div id="deviceStatus" class="box font-strong"></div>
   </div>
-  <div id = "sshRow" class="row">
+  <div id="sshRow" class="row">
     <div class="col-lg-3 col-md-6">
       <div class="ibox bg-success color-white widget-stat">
         <div class="ibox-body">
-          <h2 id ="cpu"class="m-b-5 font-strong">--</h2>
+          <h2 id="cpu" class="m-b-5 font-strong">--</h2>
           <div class="m-b-5">CPU USED %</div>
         </div>
       </div>
@@ -30,7 +30,7 @@
     <div class="col-lg-3 col-md-6">
       <div class="ibox bg-info color-white widget-stat">
         <div class="ibox-body">
-          <h2 id = "memory" class="m-b-5 font-strong">--</h2>
+          <h2 id="memory" class="m-b-5 font-strong">--</h2>
           <div class="m-b-5">MEMORY USED %</div>
         </div>
       </div>
@@ -38,7 +38,7 @@
     <div class="col-lg-3 col-md-6">
       <div class="ibox bg-warning color-white widget-stat">
         <div class="ibox-body">
-          <h2 id ="disk" class="m-b-5 font-strong">--</h2>
+          <h2 id="disk" class="m-b-5 font-strong">--</h2>
           <div class="m-b-5">DISK USED %</div>
         </div>
       </div>
@@ -46,17 +46,17 @@
     <div class="col-lg-3 col-md-6">
       <div class="ibox bg-danger color-white widget-stat">
         <div class="ibox-body">
-          <h2 id = "rtt" class="m-b-5 font-strong">--</h2>
+          <h2 id="rtt" class="m-b-5 font-strong">--</h2>
           <div class="m-b-5">AVERAGE RTT</div>
         </div>
       </div>
     </div>
   </div>
-  <div id ="pingRow" class="row">
+  <div id="pingRow" class="row">
     <div class="col-lg-3 col-md-6">
       <div class="ibox bg-success color-white widget-stat">
         <div class="ibox-body">
-          <h2 id ="sent" class="m-b-5 font-strong">--</h2>
+          <h2 id="sent" class="m-b-5 font-strong">3</h2>
           <div class="m-b-5">PACKET SENT</div>
         </div>
       </div>
@@ -64,7 +64,7 @@
     <div class="col-lg-3 col-md-6">
       <div class="ibox bg-info color-white widget-stat">
         <div class="ibox-body">
-          <h2 id = "received" class="m-b-5 font-strong">--</h2>
+          <h2 id="received" class="m-b-5 font-strong">0</h2>
           <div class="m-b-5">PACKET RECEIVED</div>
         </div>
       </div>
@@ -72,7 +72,7 @@
     <div class="col-lg-3 col-md-6">
       <div class="ibox bg-warning color-white widget-stat">
         <div class="ibox-body">
-          <h2 id ="loss"class="m-b-5 font-strong">--</h2>
+          <h2 id="loss" class="m-b-5 font-strong">100</h2>
           <div class="m-b-5">PACKET LOSS %</div>
         </div>
       </div>
@@ -80,7 +80,7 @@
     <div class="col-lg-3 col-md-6">
       <div class="ibox bg-danger color-white widget-stat">
         <div class="ibox-body">
-          <h2 id = "rtt1" class="m-b-5 font-strong">--</h2>
+          <h2 id="rtt1" class="m-b-5 font-strong">--</h2>
           <div class="m-b-5">AVERAGE RTT</div>
         </div>
       </div>
@@ -89,35 +89,57 @@
   <div class="row">
     <div class="col-lg-5">
       <div class="ibox">
+        <div class="ibox-head">
+          <div class="ibox-title">AVAILABILITY </div>
         <div class="ibox-body">
           <canvas id="pingChart"></canvas>
+        </div>
+        </div>
+      </div>
+    </div>
+    <div id="lineChartCpu" class="col-lg-7">
+      <div class="ibox">
+        <div class="ibox-head">
+          <div class="ibox-title">LAST HOUR CPU USAGE</div>
+        <div class="ibox-body">
+          <canvas id="CPU chart"></canvas>
+        </div>
+        </div>
+      </div>
+    </div>
+    <div id="lineChartPingRtt" class="col-lg-7">
+      <div class="ibox">
+        <div class="ibox-head">
+        <div class="ibox-title">LAST HOUR RTT'S</div>
+        <div class="ibox-body">
+
+<!--          <canvas id="Ping Rtt Chart"></canvas>-->
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+  <div id="lineChart" class="row">
+    <div class="col-lg-6">
+      <div class="ibox">
+        <div class="ibox-head">
+        <div class="ibox-title">LAST HOUR MEMORY USAGE</div>
+        <div class="ibox-body">
+          <canvas id="Memory Chart"></canvas>
+        </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="ibox">
+        <div class="ibox-head">
+          <div class="ibox-title">LAST HOUR DISK USAGE</div>
+          <div class="ibox-body">
+            <canvas id="Disk Chart"></canvas>
           </div>
         </div>
       </div>
-    <div class="col-lg-7">
-      <div class="ibox">
-        <div class="ibox-body">
-          <canvas id="lineChartCpu"></canvas>
-        </div>
-      </div>
     </div>
-    </div>
-  <div class="row">
-    <div class="col-lg-6">
-      <div class="ibox">
-        <div class="ibox-body">
-          <canvas id="lineChartMemory"></canvas>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-6">
-      <div class="ibox">
-        <div class="ibox-body">
-          <canvas id="lineChartDisk"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
   </div>
 </div>
 

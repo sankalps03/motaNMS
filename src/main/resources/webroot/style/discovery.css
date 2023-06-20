@@ -304,6 +304,10 @@ body{
   margin-bottom: 20px;
 }
 
+#formIpRow{
+  width: 500px;
+}
+
 .booking-form .form-control {
   background-color: #fff;
   height: 50px;

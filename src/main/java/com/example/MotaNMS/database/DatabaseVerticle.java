@@ -185,7 +185,7 @@ public class DatabaseVerticle extends AbstractVerticle {
           throw  new Exception("Prepared Statement is null");
         }
 
-        if (executionData.containsKey("id"))
+        if (query.equals(DISCOVERY_RUN_SELECT_QUERY))
         {
 
           preparedSelectStatement.setInt(1,Integer.parseInt(executionData.getString("id")));
@@ -444,6 +444,5 @@ public class DatabaseVerticle extends AbstractVerticle {
         ConnectionPool.getInstance().releaseConnection(connection);
       }
     }, false);
-
   }
 }

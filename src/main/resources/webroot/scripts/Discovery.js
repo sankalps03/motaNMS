@@ -47,6 +47,10 @@ var discovery = {
 
         $('#sshRow').show();
 
+        $("#username").prop('required', true);
+
+        $("#password").prop('required', true);
+
       }
     });
   },
@@ -174,8 +178,6 @@ var discovery = {
 
     let data = $.parseJSON(result);
 
-    console.log(data)
-
     $("#discoveryTable").dataTable().fnDestroy()
 
     let dataTable = $('#discoveryTable').DataTable({
@@ -211,13 +213,13 @@ var discovery = {
 
   openForm: function () {
 
-    document.getElementById("addForm").style.display = "block";
+    $('#addForm').show();
 
   },
 
   closeForm: function () {
 
-    document.getElementById("addForm").style.display = "none";
+    $('#addForm').hide();
 
   },
 

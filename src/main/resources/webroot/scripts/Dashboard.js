@@ -6,8 +6,6 @@ $(function () {
 
     eventBus.registerHandler('updates.Dashboard', function (err, msg) {
 
-      console.log(msg)
-
       let messageArray = JSON.parse(msg.body)
 
       messageArray.forEach(function (jsonArray) {
@@ -65,8 +63,6 @@ var dashboard = {
 
     $("#" + tableName).dataTable().fnDestroy()
 
-    console.log(metricType)
-
     let dataTable = $("#" + tableName).DataTable({
       searching: false, paging: false, info: false,
 
@@ -76,7 +72,7 @@ var dashboard = {
         {
           targets: 1, data: metricType,
           render: function (data) {
-            return '<div class="progress"><div class="progress-bar progress-bar-success" role="progressbar" style="width:52%; height:5px;" aria-valuenow="52" aria-valuemin="0" aria-valuemax="100"></div></div><span class="progress-parcent">' + data + '</span>'
+            return '<div class="progress"><div class="progress-bar progress-bar-success" role="progressbar" style="width:{{data}}%; height:5px;" aria-valuenow="{{data}}" aria-valuemin="0" aria-valuemax="100"></div></div><span class="progress-parcent">' + data + '</span>'
           }
         },
       ],

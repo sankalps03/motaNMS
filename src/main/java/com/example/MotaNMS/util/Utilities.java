@@ -1,6 +1,5 @@
 package com.example.MotaNMS.util;
 
-import com.example.MotaNMS.services.Dashboard;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
@@ -92,7 +91,6 @@ public class Utilities {
         process.destroy();
       }
     }
-    System.out.println(dataArray);
     return dataArray;
   }
 }

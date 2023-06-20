@@ -78,8 +78,6 @@ var monitor = {
 
     let data = $.parseJSON(result);
 
-    console.log(data)
-
     $("#monitorTable").dataTable().fnDestroy()
 
     let dataTable = $('#monitorTable').DataTable({

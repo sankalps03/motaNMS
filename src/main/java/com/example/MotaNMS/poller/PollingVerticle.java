@@ -80,15 +80,31 @@ public class PollingVerticle extends AbstractVerticle {
               .put("ip", dataObject.getValue("IPADDRESS")).put("category", "polling");
 
             deviceDataArray.add(deviceData);
+
+            if (deviceDataArray.size() == 200){
+
+              vertx.executeBlocking(pollSsh ->
+              {
+                LOGGER.debug("Polling Started for ssh time :" +LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) );
+
+                JsonArray pollData = runPluginPolling(deviceDataArray);
+
+                insertPollData(pollData);
+              });
+              deviceDataArray.clear();
+            }
           }
-          vertx.executeBlocking(pollSsh ->
-          {
-            LOGGER.debug("Polling Started for ssh time :" +LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) );
+          if (deviceDataArray.size() != 0){
 
-            JsonArray pollData = runPluginPolling(deviceDataArray);
+            vertx.executeBlocking(pollSsh ->
+            {
+              LOGGER.debug("Polling Started for ssh time :" +LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) );
 
-            insertPollData(pollData);
-          });
+              JsonArray pollData = runPluginPolling(deviceDataArray);
+
+              insertPollData(pollData);
+            });
+          }
         }
         else
         {

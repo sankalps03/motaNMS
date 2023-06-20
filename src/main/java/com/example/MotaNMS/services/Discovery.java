@@ -216,6 +216,8 @@ public class Discovery {
               LOGGER.debug("Discovery run successful for : " + credentialObject.getString("ip"));
             } else {
 
+              eventBus.send(ROW_ID_OPERATION, new JsonObject().put("id", id).put("query", SET_PROVISION_FALSE_QUERY));
+
               message.fail(2, "Discovery failed for : " + credentialObject.getString("ip"));
 
               LOGGER.debug("Discovery failed for : " + credentialObject.getString("ip"));

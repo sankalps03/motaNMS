@@ -59,7 +59,7 @@ let device = {
 
             break;
 
-          case ((jsonArray[0].hasOwnProperty("TIMESTAMP")) && (jsonArray[0].hasOwnProperty("METRICTYPE")) && (jsonArray[0].METRICTYPE).toString().includes("ping")):
+          case ((jsonArray[0].hasOwnProperty("TIMESTAMP")) && (jsonArray[0].hasOwnProperty("METRICTYPE")) && (jsonArray[1].METRICTYPE).toString().includes("ping")):
 
             const uniqueTimestamps = [];
 

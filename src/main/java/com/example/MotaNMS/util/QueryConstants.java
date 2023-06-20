@@ -14,6 +14,8 @@ public class QueryConstants
 
   public static final String SET_PROVISION_TRUE_QUERY ="UPDATE DISCOVERY SET Provision = true WHERE id = ?";
 
+  public static final String SET_PROVISION_FALSE_QUERY ="UPDATE DISCOVERY SET Provision = false WHERE id = ?";
+
   public static final String MONITOR_SELECT_QUERY = "SELECT id,ipaddress,type,status FROM MONITOR";
 
   public static final String MONITOR_DELETE_QUERY ="DELETE FROM MONITOR WHERE id =?";
@@ -24,7 +26,7 @@ public class QueryConstants
 
   public static final String POLLING_INSERT_QUERY ="INSERT INTO polling (ipaddress, type, metricType, metricvalue, timestamp) VALUES (?, ?, ?, ?, ?)";
 
-  public static final String SSH_LATEST_DATA_QUERY ="SELECT Metricvalue,metrictype FROM polling WHERE IPADDRESS = ? AND METRICTYPE IN ( 'cpu.percent.total','ping.packet.rtt', 'disk.percent.used', 'memory.percent.used' ) ORDER BY TIMESTAMP DESC LIMIT 4;";
+  public static final String SSH_LATEST_DATA_QUERY ="SELECT DISTINCT metrictype, Metricvalue, TIMESTAMP FROM polling WHERE IPADDRESS = ? AND METRICTYPE IN ('cpu.percent.total', 'ping.packet.rtt', 'disk.percent.used', 'memory.percent.used') ORDER BY TIMESTAMP DESC LIMIT 4;";
 
   public static final String PING_LATEST_DATA_QUERY ="SELECT MAX(CASE WHEN METRICTYPE = 'ping.packet.sent' THEN Metricvalue END) AS ping_packet_sent, MAX(CASE WHEN METRICTYPE = 'ping.packet.rtt' THEN Metricvalue END) AS ping_packet_rtt, MAX(CASE WHEN METRICTYPE = 'ping.packet.rcv' THEN Metricvalue END) AS ping_packet_rcv, MAX(CASE WHEN METRICTYPE = 'ping.packet.loss' THEN Metricvalue END) AS ping_packet_loss FROM polling WHERE IPADDRESS = ? AND METRICTYPE IN ( 'ping.packet.sent', 'ping.packet.rtt', 'ping.packet.rcv', 'ping.packet.loss' ) AND TIMESTAMP >= NOW() - INTERVAL '2' MINUTE GROUP BY TIMESTAMP ORDER BY TIMESTAMP DESC";
 
