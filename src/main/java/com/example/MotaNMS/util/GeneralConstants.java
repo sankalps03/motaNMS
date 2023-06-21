@@ -6,6 +6,8 @@ public class GeneralConstants {
 
   public static final int PROCESS_TIMEOUT_SECONDS = 60;
 
+  public static final int BATCH_SIZE = 100;
+
   public static final int SSH_PERIODIC_TIME = 5 * 60 * 1000;
 
   public static final int PING_PERIODIC_TIME = 2 * 60 * 1000;
@@ -16,7 +18,7 @@ public class GeneralConstants {
 
   public static final String PASSWORD ="";
 
-  public static final int MAX_POOL_SIZE = 10;
+  public static final int MAX_POOL_SIZE = 15;
 
   public static final String SELECT ="Select from database";
 

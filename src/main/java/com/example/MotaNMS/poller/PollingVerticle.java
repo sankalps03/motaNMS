@@ -81,7 +81,7 @@ public class PollingVerticle extends AbstractVerticle {
 
             deviceDataArray.add(deviceData);
 
-            if (deviceDataArray.size() == 200){
+            if (deviceDataArray.size() == BATCH_SIZE){
 
               vertx.executeBlocking(pollSsh ->
               {
@@ -94,7 +94,7 @@ public class PollingVerticle extends AbstractVerticle {
               deviceDataArray.clear();
             }
           }
-          if (deviceDataArray.size() != 0){
+          if (deviceDataArray.size() > 0){
 
             vertx.executeBlocking(pollSsh ->
             {

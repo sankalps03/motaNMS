@@ -185,17 +185,34 @@ public class DatabaseVerticle extends AbstractVerticle {
           throw  new Exception("Prepared Statement is null");
         }
 
-        if (query.equals(DISCOVERY_RUN_SELECT_QUERY))
-        {
+        switch (query) {
+          case DISCOVERY_RUN_SELECT_QUERY:
 
-          preparedSelectStatement.setInt(1,Integer.parseInt(executionData.getString("id")));
+            preparedSelectStatement.setInt(1, Integer.parseInt(executionData.getString("id")));
 
-        }
-        else if ((query.equals(SSH_LATEST_DATA_QUERY)) || (query.equals(PING_LATEST_DATA_QUERY)) ||query.equals(LAST_24_HOUR_AVAILABILITY_QUERY) || query.equals(LAST_1_HOUR_CPU_USED_QUERY) || query.equals(LAST_1_HOUR_DISK_USED_QUERY) || query.equals(LAST_1_HOUR_MEMORY_USED_QUERY) || query.equals(LAST_1_HOUR_ALL_RTT))
-        {
+            break;
+          case SSH_LATEST_DATA_QUERY:
 
-          preparedSelectStatement.setString(1, executionData.getString("ip"));
+            preparedSelectStatement.setString(1, executionData.getString("ip"));
 
+            preparedSelectStatement.setString(2, executionData.getString("ip"));
+
+            break;
+          case PING_LATEST_DATA_QUERY:
+
+          case LAST_24_HOUR_AVAILABILITY_QUERY:
+
+          case LAST_1_HOUR_CPU_USED_QUERY:
+
+          case LAST_1_HOUR_DISK_USED_QUERY:
+
+          case LAST_1_HOUR_MEMORY_USED_QUERY:
+
+          case LAST_1_HOUR_ALL_RTT:
+
+            preparedSelectStatement.setString(1, executionData.getString("ip"));
+
+            break;
         }
 
         ResultSet resultSet = preparedSelectStatement.executeQuery();

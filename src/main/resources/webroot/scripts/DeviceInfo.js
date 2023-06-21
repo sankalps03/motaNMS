@@ -37,14 +37,9 @@ let device = {
 
       $("#lineChart").hide();
     }
-
-
   },
 
   updatePage: function (devceInfoArray) {
-
-
-    console.log(devceInfoArray);
 
     devceInfoArray.forEach(function (jsonArray) {
 
@@ -111,7 +106,7 @@ let device = {
 
             break;
 
-          case ((jsonArray[0].hasOwnProperty("METRICTYPE")) && (((jsonArray[1].METRICTYPE).toString().includes("cpu")) || ((jsonArray[1].METRICTYPE).toString().includes("memory" )) || ((jsonArray[1].METRICTYPE).toString().includes("disk")))):
+          case ((jsonArray[0].hasOwnProperty("METRICTYPE")) && (((jsonArray[2].METRICTYPE).toString().includes("memory.percent.used")) || ((jsonArray[2].METRICTYPE).toString().includes("cpu.percent.total" )) || ((jsonArray[2].METRICTYPE).toString().includes("disk.percent.used")))):
 
             jsonArray.forEach(item => {
 
