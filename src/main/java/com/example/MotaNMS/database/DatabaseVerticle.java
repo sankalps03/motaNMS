@@ -8,6 +8,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,19 +23,21 @@ public class DatabaseVerticle extends AbstractVerticle {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseVerticle.class);
 
+  private static boolean poolCreated;
+
+  static
+  {
+    poolCreated = ConnectionPool.getInstance().createConnection();
+  }
+
   EventBus eventBus;
 
-  public void start(Promise<Void> startPromise)
-  {
+  public void start(Promise<Void> startPromise) {
 
-    try
-    {
+    try {
       eventBus = getVertx().eventBus();
 
-      boolean poolCreated = ConnectionPool.getInstance().createConnection();
-
-      if (!poolCreated)
-      {
+      if (!poolCreated) {
         throw new Exception("Connection pool creation failed");
       }
 
@@ -49,26 +52,22 @@ public class DatabaseVerticle extends AbstractVerticle {
       startPromise.complete();
 
       LOGGER.info("Database verticle successfully deployed");
-    }
-    catch (Exception exception)
-    {
+    } catch (Exception exception) {
 
       startPromise.fail(exception.getCause());
 
-      LOGGER.error(exception.getMessage(),exception.getCause());
+      LOGGER.error(exception.getMessage(), exception.getCause());
 
     }
   }
 
-  public void stop()
-  {
+  public void stop() {
 
     ConnectionPool.getInstance().closeAllConnections();
 
   }
 
-  private void update(Message<Object> message)
-  {
+  private void update(Message<Object> message) {
 
     vertx.executeBlocking(selectOperation ->
     {
@@ -77,11 +76,9 @@ public class DatabaseVerticle extends AbstractVerticle {
 
       Connection connection = null;
 
-      try
-      {
+      try {
 
-        if (message.body() == null)
-        {
+        if (message.body() == null) {
 
           throw new Exception("Null message received in update method");
 
@@ -93,18 +90,16 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         connection = ConnectionPool.getInstance().getConnection();
 
-        if (connection == null || connection.isClosed())
-        {
+        if (connection == null || connection.isClosed()) {
 
-          throw new Exception("Database connection is closed: " + query );
+          throw new Exception("Database connection is closed: " + query);
 
         }
 
         preparedUpdateStatement = connection.prepareStatement(query);
 
-        if (preparedUpdateStatement == null)
-        {
-          throw  new Exception("Prepared Statement is null");
+        if (preparedUpdateStatement == null) {
+          throw new Exception("Prepared Statement is null");
         }
 
         preparedUpdateStatement.execute();
@@ -113,27 +108,20 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         LOGGER.debug("Execution completed:" + query);
 
-      }
-      catch (Exception exception)
-      {
+      } catch (Exception exception) {
 
-        message.fail(2,exception.getMessage());
+        message.fail(2, exception.getMessage());
 
-        LOGGER.error(exception.getMessage(),exception.getCause());
-      }
-      finally
-      {
+        LOGGER.error(exception.getMessage(), exception.getCause());
+      } finally {
 
-        try
-        {
-          if (preparedUpdateStatement != null && !preparedUpdateStatement.isClosed())
-          {
+        try {
+          if (preparedUpdateStatement != null && !preparedUpdateStatement.isClosed()) {
             preparedUpdateStatement.close();
           }
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
 
-          LOGGER.error(exception.getMessage(),exception.getCause());
+          LOGGER.error(exception.getMessage(), exception.getCause());
 
         }
 
@@ -143,8 +131,7 @@ public class DatabaseVerticle extends AbstractVerticle {
     });
   }
 
-  private void select(Message<Object> message)
-  {
+  private void select(Message<Object> message) {
 
     vertx.executeBlocking(selectOperation ->
     {
@@ -153,10 +140,8 @@ public class DatabaseVerticle extends AbstractVerticle {
 
       Connection connection = null;
 
-      try
-      {
-        if (message.body() == null)
-        {
+      try {
+        if (message.body() == null) {
 
           throw new Exception("Null message received in update method");
 
@@ -171,18 +156,17 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         connection = ConnectionPool.getInstance().getConnection();
 
-        if (connection == null || connection.isClosed())
-        {
+        if (connection == null || connection.isClosed()) {
 
-          throw new Exception("Database connection is closed: " + query );
+          throw new Exception("Database connection is closed: " + query);
 
         }
 
         preparedSelectStatement = connection.prepareStatement(query);
 
-        if (preparedSelectStatement == null){
+        if (preparedSelectStatement == null) {
 
-          throw  new Exception("Prepared Statement is null");
+          throw new Exception("Prepared Statement is null");
         }
 
         switch (query) {
@@ -213,18 +197,31 @@ public class DatabaseVerticle extends AbstractVerticle {
             preparedSelectStatement.setString(1, executionData.getString("ip"));
 
             break;
+
+          case LAST_TWO_ENTRIES_OF_NETWORK_INTERFACES:
+
+            preparedSelectStatement.setString(1, executionData.getString("ip"));
+
+            preparedSelectStatement.setString(2, executionData.getString("ip"));
+
+            preparedSelectStatement.setString(3, executionData.getString("ip"));
+
+            preparedSelectStatement.setString(4, executionData.getString("ip"));
+
+            preparedSelectStatement.setString(5, executionData.getString("ip"));
+
+            break;
+
         }
 
         ResultSet resultSet = preparedSelectStatement.executeQuery();
 
         ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
 
-        while (resultSet.next())
-        {
+        while (resultSet.next()) {
           Map<String, String> tableData = new HashMap<>(resultSetMetaData.getColumnCount());
 
-          for (int column = 1; column <= resultSetMetaData.getColumnCount(); column++)
-          {
+          for (int column = 1; column <= resultSetMetaData.getColumnCount(); column++) {
             String columnName = resultSetMetaData.getColumnName(column);
 
             tableData.put(columnName, resultSet.getString(columnName));
@@ -238,27 +235,20 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         LOGGER.debug("Execution completed:" + query);
 
-      }
-      catch (Exception exception)
-      {
+      } catch (Exception exception) {
 
         message.fail(2, exception.getMessage());
 
-        LOGGER.error(exception.getMessage(),exception.getCause());
-      }
-      finally
-      {
+        LOGGER.error(exception.getMessage(), exception.getCause());
+      } finally {
 
-        try
-        {
-          if (preparedSelectStatement != null)
-          {
+        try {
+          if (preparedSelectStatement != null) {
             preparedSelectStatement.close();
           }
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
 
-          LOGGER.error(exception.getMessage(),exception.getCause());
+          LOGGER.error(exception.getMessage(), exception.getCause());
 
         }
         ConnectionPool.getInstance().releaseConnection(connection);
@@ -267,8 +257,7 @@ public class DatabaseVerticle extends AbstractVerticle {
 
   }
 
-  private void rowIdOperation(Message<Object> message)
-  {
+  private void rowIdOperation(Message<Object> message) {
 
     vertx.executeBlocking(rowOperation ->
     {
@@ -276,11 +265,9 @@ public class DatabaseVerticle extends AbstractVerticle {
 
       Connection connection = null;
 
-      try
-      {
+      try {
 
-        if (message.body() == null)
-        {
+        if (message.body() == null) {
 
           throw new Exception("Null message received in update method");
 
@@ -294,50 +281,42 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         connection = ConnectionPool.getInstance().getConnection();
 
-        if (connection == null || connection.isClosed())
-        {
+        if (connection == null || connection.isClosed()) {
 
-          throw new Exception("Database connection is closed: " + query );
+          throw new Exception("Database connection is closed: " + query);
 
         }
 
         preparedRowOperationStatement = connection.prepareStatement(query);
 
-        if (preparedRowOperationStatement == null){
+        if (preparedRowOperationStatement == null) {
 
-          throw  new Exception("Prepared Statement is null");
+          throw new Exception("Prepared Statement is null");
         }
 
         preparedRowOperationStatement.setInt(1, id);
 
         preparedRowOperationStatement.execute();
 
-        message.reply("Execution completed: "+query);
+        message.reply("Execution completed: " + query);
 
         LOGGER.debug("Execution Completed:" + query);
 
-      }
-      catch (Exception exception)
-      {
+      } catch (Exception exception) {
 
         message.fail(2, exception.getMessage());
 
-        LOGGER.error(exception.getMessage(),exception.getCause());
+        LOGGER.error(exception.getMessage(), exception.getCause());
 
-      }
-      finally
-      {
+      } finally {
 
-        try
-        {
-          if (preparedRowOperationStatement != null)
-          {
+        try {
+          if (preparedRowOperationStatement != null) {
             preparedRowOperationStatement.close();
           }
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
 
-          LOGGER.error(exception.getMessage(),exception.getCause());
+          LOGGER.error(exception.getMessage(), exception.getCause());
 
         }
         ConnectionPool.getInstance().releaseConnection(connection);
@@ -345,18 +324,15 @@ public class DatabaseVerticle extends AbstractVerticle {
     }, false);
   }
 
-  private void insert(Message<Object> message)
-  {
+  private void insert(Message<Object> message) {
 
     vertx.executeBlocking(indertOperaton ->
     {
       PreparedStatement preparedInsertStatement = null;
 
       Connection connection = null;
-      try
-      {
-        if (message.body() == null)
-        {
+      try {
+        if (message.body() == null) {
 
           throw new Exception("Null message received in update method");
 
@@ -370,16 +346,13 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         JsonArray insertDataArray = null;
 
-        if (insertData instanceof JsonArray)
-        {
+        if (insertData instanceof JsonArray) {
 
           insertDataArray = (JsonArray) insertData;
 
           query = POLLING_INSERT_QUERY;
 
-        }
-        else
-        {
+        } else {
           jsonInsertData = (JsonObject) message.body();
 
           query = jsonInsertData.getString("query");
@@ -387,18 +360,17 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         connection = ConnectionPool.getInstance().getConnection();
 
-        if (connection == null || connection.isClosed())
-        {
+        if (connection == null || connection.isClosed()) {
 
-          throw new Exception("Database connection is closed: " + query );
+          throw new Exception("Database connection is closed: " + query);
 
         }
 
         preparedInsertStatement = connection.prepareStatement(query);
 
-        if (preparedInsertStatement == null){
+        if (preparedInsertStatement == null) {
 
-          throw  new Exception("Prepared Statement is null");
+          throw new Exception("Prepared Statement is null");
         }
 
         if (insertData instanceof JsonArray) {
@@ -435,28 +407,22 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         }
 
-        message.reply("Execution Completed: "+ query);
+        message.reply("Execution Completed: " + query);
 
-        LOGGER.debug("Execution Completed: "+ query);
+        LOGGER.debug("Execution Completed: " + query);
 
       } catch (Exception exception) {
 
         message.fail(2, exception.getMessage());
 
-        LOGGER.error(exception.getMessage(),exception.getCause());
-      }
-      finally
-      {
-        try
-        {
-          if (preparedInsertStatement != null)
-          {
+        LOGGER.error(exception.getMessage(), exception.getCause());
+      } finally {
+        try {
+          if (preparedInsertStatement != null) {
             preparedInsertStatement.close();
           }
-        }
-        catch (Exception exception)
-        {
-          LOGGER.error(exception.getMessage(),exception.getCause());
+        } catch (Exception exception) {
+          LOGGER.error(exception.getMessage(), exception.getCause());
         }
         ConnectionPool.getInstance().releaseConnection(connection);
       }

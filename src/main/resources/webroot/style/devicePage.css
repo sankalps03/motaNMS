@@ -25,3 +25,63 @@ html, body, #avavilityDonut {
 body {
   font-family: -apple-system, sans-serif;
 }
+
+/* Apply styles to the networkTable */
+.networkTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Apply styles to the table columns */
+.networkTable colgroup span {
+  background-color: #007bff; /* Bright yellow */
+
+}
+
+/* Apply styles to the table header cells */
+.networkTable th {
+  background-color: #007bff; /* Bright orange */
+  color: white; /* Text color */
+  text-align: center;
+  padding: 10px;
+  border: 1px solid black;
+}
+
+/* Apply styles to the table data cells */
+.networkTable td {
+  text-align: center;
+  padding: 8px;
+  border: 1px solid black;
+}
+
+/* Apply styles to the first row (Interface Name) */
+.networkTable tr:nth-child(1) td {
+  font-weight: bold;
+  background-color: #007bff; /* Bright yellow */
+  color: white; /* Text color */
+
+}
+
+/* Apply styles to the second row (Packets and Bytes) */
+.networkTable tr:nth-child(2) th {
+  background-color: #007bff; /* Bright yellow */
+  padding-top: 12px;
+  border-bottom: 2px solid black;
+}
+
+/* Apply styles to alternate rows */
+.networkTable tr:nth-child(even) {
+  background-color: lightgray; /* Light goldenrod yellow */
+}
+
+/* Apply styles to the first column (Interface Name) */
+.networkTable td:first-child {
+  text-align: left;
+  font-weight: bold;
+}
+
+/* Apply styles to the header columns */
+.networkTable th[colspan]:not([colspan="1"]) {
+  border-right: 2px solid white;
+}
+

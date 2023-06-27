@@ -10,7 +10,7 @@ var discovery = {
 
     var ajaxData =
       {
-        url: "https://localhost:8080/api/discovery/load",
+        url: "discovery/load",
         type: "GET",
         successCallback: this.updateDiscoveryTable
       }
@@ -67,7 +67,7 @@ var discovery = {
 
       let runAjaxData = {
 
-        url: "https://localhost:8080/api/discovery/run",
+        url: "discovery/run",
         type: "POST",
         data: JSON.stringify(id),
         dataType: 'json',
@@ -103,7 +103,7 @@ var discovery = {
 
         let deleteAjaxData = {
 
-          url: "https://localhost:8080/api/discovery/delete",
+          url: "discovery/delete",
           type: "POST",
           data: JSON.stringify(id),
           dataType: 'json',
@@ -129,7 +129,7 @@ var discovery = {
 
       let provisionAjaxData = {
 
-        url: "https://localhost:8080/api/discovery/provision",
+        url: "discovery/provision",
         type: "POST",
         data: JSON.stringify(id),
         dataType: 'json',
@@ -161,7 +161,7 @@ var discovery = {
 
       let addajaxData = {
 
-        url: "https://localhost:8080/api/discovery/add",
+        url: "discovery/add",
         type: "POST",
         data: JSON.stringify(formData),
         dataType: 'json',

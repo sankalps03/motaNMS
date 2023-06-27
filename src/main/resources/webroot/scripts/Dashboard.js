@@ -84,7 +84,7 @@ var dashboard = {
   requestDashboardData: function () {
 
     let ajaxRequest = {
-      url: "https://localhost:8080/api/dashboard",
+      url: "dashboard",
       type: "POST",
     }
     setTimeout(function () {

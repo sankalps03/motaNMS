@@ -40,7 +40,7 @@ public class ConnectionPool {
 
     Connection connection;
 
-    connections = new ArrayBlockingQueue<>(MAX_POOL_SIZE,true);
+    connections = new ArrayBlockingQueue<>(MAX_POOL_SIZE,true); // initialize out of method scope
 
     try
     {

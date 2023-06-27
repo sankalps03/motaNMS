@@ -5,9 +5,12 @@ import com.example.MotaNMS.poller.PollingVerticle;
 import com.example.MotaNMS.publicAPI.PublicApiVerticle;
 import com.example.MotaNMS.services.ServiceVerticle;
 import io.vertx.core.CompositeFuture;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.example.MotaNMS.util.GeneralConstants.*;
+
 
 public class Main {
 
@@ -22,10 +25,10 @@ public class Main {
        vertx = Vertx.vertx();
 
       CompositeFuture.all(
-        vertx.deployVerticle(DatabaseVerticle.class.getName()),
+        vertx.deployVerticle(DatabaseVerticle.class.getName(),new DeploymentOptions().setWorkerPoolName("database").setWorkerPoolSize(DATABASE_WORKER_POOL_SIZE).setInstances(2)),
         vertx.deployVerticle(PublicApiVerticle.class.getName()),
-        vertx.deployVerticle(ServiceVerticle.class.getName()),
-        vertx.deployVerticle(PollingVerticle.class.getName())
+        vertx.deployVerticle(ServiceVerticle.class.getName(),new DeploymentOptions().setWorkerPoolName("service").setWorkerPoolSize(SERVICE_WORKER_POOL_SIZE)),
+        vertx.deployVerticle(PollingVerticle.class.getName(),new DeploymentOptions().setWorkerPoolName("polling").setWorkerPoolSize(POLLING_WORKER_POOL_SIZE))
       )
         .onComplete(result ->
       {

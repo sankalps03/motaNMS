@@ -6,7 +6,7 @@ let device = {
 
     let deviceInfoAjaxData = {
 
-      url: "https://localhost:8080/api/monitor/device",
+      url: "monitor/device",
       type: "POST",
       data: JSON.stringify(deviceId),
       dataType: 'json',
@@ -36,10 +36,14 @@ let device = {
       $("#lineChartCpu").hide();
 
       $("#lineChart").hide();
+
+      $("#networkInterface").hide()
     }
   },
 
   updatePage: function (devceInfoArray) {
+
+    console.log(devceInfoArray)
 
     devceInfoArray.forEach(function (jsonArray) {
 
@@ -106,7 +110,7 @@ let device = {
 
             break;
 
-          case ((jsonArray[0].hasOwnProperty("METRICTYPE")) && (((jsonArray[2].METRICTYPE).toString().includes("memory.percent.used")) || ((jsonArray[2].METRICTYPE).toString().includes("cpu.percent.total" )) || ((jsonArray[2].METRICTYPE).toString().includes("disk.percent.used")))):
+          case ((jsonArray[0].hasOwnProperty("METRICTYPE")) && (((jsonArray[2].METRICTYPE).toString().includes("memory.percent.used")) || ((jsonArray[2].METRICTYPE).toString().includes("cpu.percent.total")) || ((jsonArray[2].METRICTYPE).toString().includes("disk.percent.used")))):
 
             jsonArray.forEach(item => {
 
@@ -150,7 +154,11 @@ let device = {
             $("#total").html(jsonArray[0].TOTAL_COUNT);
 
             break;
+          case jsonArray[0].hasOwnProperty("loopback.interface.name"):
 
+            device.ceateTableBody(jsonArray[0])
+
+            break;
         }
       }
     });
@@ -220,7 +228,7 @@ let device = {
         label: "Last One Hour " + chartName,
         data: data,
         borderColor: 'blue',
-        fill: false
+        fill: true
       }]
     };
 
@@ -249,19 +257,19 @@ let device = {
         label: "AVG RTT",
         data: data1,
         borderColor: 'blue',
-        fill: false
+        fill: true
       },
         {
           label: "MAX RTT",
           data: data2,
           borderColor: 'red',
-          fill: false
+          fill: true
         },
         {
           label: "MIN RTT",
           data: data3,
           borderColor: 'green',
-          fill: false
+          fill: true
         }]
     };
 
@@ -280,5 +288,69 @@ let device = {
       data: chartData,
       options: chartOptions
     });
+  },
+  createTableRow: function (interfaceName, receivedPackets, receivedBytes, totalBytes, totalPackets, transmittedBytes, transmittedPackets, receivedBPS, totalBPS, transmittedBPS) {
+    var row = "<tr>" +
+      "<td>" + interfaceName + "</td>" +
+      "<td>" + transmittedPackets + "</td>" +
+      "<td>" + receivedPackets + "</td>" +
+      "<td>" + totalPackets + "</td>" +
+      "<td>" + transmittedBytes + "</td>" +
+      "<td>" + receivedBytes + "</td>" +
+      "<td>" + totalBytes + "</td>" +
+      "<td>" + transmittedBPS + "</td>" +
+      "<td>" + receivedBPS + "</td>" +
+      "<td>" + totalBPS + "</td>" +
+      "</tr>";
+    return row;
+  },
+
+  ceateTableBody: function (networkInterfaceData) {
+
+    var table = $(".networkTable");
+
+    var headers = [
+      "transmitted.packets",
+      "received.Packets",
+      "total.packets",
+      "transmitted.bytes",
+      "received.bytes",
+      "total.bytes",
+      "TransmittedBPS",
+      "ReceivedBPS",
+      "TotalBPS",
+    ];
+
+
+    var rowOrder = ["ethernet", "loopback", "wireless"];
+
+    for (var i = 0; i < rowOrder.length; i++) {
+      var rowKey = rowOrder[i];
+
+      var rowData = {};
+
+      for (var key in networkInterfaceData) {
+        if (key.includes(rowKey)) {
+          rowData[key] = networkInterfaceData[key];
+
+        }
+      }
+
+
+      var row = $("<tr>");
+
+      var header = $("<th>", { scope: "row", text: rowData[rowKey + ".interface.name"] });
+      row.append(header);
+
+      for (var j = 0; j < 9; j++) {
+        var cellDataKey = rowKey + "." + headers[j];
+        var cellData = rowData[cellDataKey] || "";
+        var cell = $("<td>", { text: cellData });
+        row.append(cell);
+      }
+
+      // Append the row to the table body
+      table.find("tbody").append(row);
+    }
   }
 }

@@ -7,7 +7,7 @@ var monitor = {
     $("#header").html("Monitor");
 
     let ajaxData = {
-      url: "https://localhost:8080/api/monitor/load",
+      url: "monitor/load",
       type: "GET",
       successCallback: this.updateMonitorTable
     }
@@ -39,7 +39,7 @@ var monitor = {
 
           let deleteAjaxData = {
 
-            url: "https://localhost:8080/api/monitor/delete",
+            url: "monitor/delete",
             type: "POST",
             data: JSON.stringify(id),
             dataType: 'json',
